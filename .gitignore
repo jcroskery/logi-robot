@@ -1,1 +1,12 @@
-/target
+/target/*
+!/target/debug
+
+/target/debug/*
+!/target/debug/rpr
+
+!/target/release
+
+/target/release/*
+!/target/release/rpr
+
+Cargo.lock
