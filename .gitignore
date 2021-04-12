@@ -1,13 +1,20 @@
 /target/*
-!/target/debug
+!/target/armv7-unknown-linux-gnueabihf
 
-/target/debug/*
-!/target/debug/rpr
 
-!/target/release
+/target/armv7-unknown-linux-gnueabihf/*
 
-/target/release/*
-!/target/release/rpr
+
+!/target/armv7-unknown-linux-gnueabihf/debug
+
+/target/armv7-unknown-linux-gnueabihf/debug/*
+!/target/armv7-unknown-linux-gnueabihf/debug/rpr
+
+
+!/target/armv7-unknown-linux-gnueabihf/release
+
+/target/armv7-unknown-linux-gnueabihf/release/*
+!/target/armv7-unknown-linux-gnueabihf/release/rpr
 
 Cargo.lock
 
