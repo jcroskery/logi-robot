@@ -3,6 +3,7 @@ use tokio::time::Duration;
 
 mod ultrasonic;
 mod infrared;
+mod stepper;
 
 #[tokio::main]
 async fn main() {
@@ -13,9 +14,13 @@ async fn main() {
         //ultrasonic::init_ultrasonic_pins(ultrasonic_gpio).await;
     });
 
-    
+    let infrared_gpio = gpio.clone();
     tokio::spawn(async {
-        infrared::init_infrared_pin(gpio).await;
+        //infrared::init_infrared_pin(infrared_gpio).await;
+    });
+
+    tokio::spawn(async {
+        stepper::init_stepper_pins(gpio).await;
     });
 
     spin_sleep::sleep(Duration::from_millis(1000));
