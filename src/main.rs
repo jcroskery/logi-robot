@@ -15,6 +15,15 @@ fn main() {
             Polarity::Normal, true).unwrap()];
     pwm[0].set_reset_on_drop(false);
     pwm[1].set_reset_on_drop(false);
+    pwm[0].set_duty_cycle(1.0).unwrap();
+    pwm[1].set_duty_cycle(1.0).unwrap();
+    for i in 0..10000000 {
+        for j in 0..100000000 {
+            if (i > j + 100000000000) {
+                panic!("WHWHWHWHWHWHATATATATATAT");
+            }
+        }
+    }
     /*
     let ultrasonic_gpio = gpio.clone();
     tokio::spawn(async {
