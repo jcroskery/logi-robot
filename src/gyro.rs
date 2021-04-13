@@ -15,11 +15,11 @@ pub fn gyro() -> Vec<f64> {
     let mut gyro_readings = vec![];
     for i in 0..7 {
         if i == 3 {continue;}
-        let mut bits: u16 = (buffer[i] as u16) << 8 + (buffer[i + 1] as u16);
+        let mut bits: u16 = (buffer[i] as u16) << 8 ;//+ (buffer[i + 1] as u16);
         let mut combined_bits = 0.0;
         println!("Bits {} (before conv): {}", i, bits);
         if (bits.leading_ones() > 0) {
-            combined_bits = -((!bits + 1) as f64);
+            combined_bits = (!bits + 1) as f64;
         } else {
             combined_bits = bits as f64;
         }
@@ -28,7 +28,6 @@ pub fn gyro() -> Vec<f64> {
         } else {
             gyro_readings.push(combined_bits / 16384.0);
         }
-        println!("Bits {} (after conv): {}", i, bits);
     }
     println!("{:?}", buffer);
     println!("{:?}", gyro_readings);
