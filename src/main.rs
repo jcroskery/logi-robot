@@ -9,6 +9,7 @@ mod motor;
 
 fn main() {
     let gpio = Gpio::new().unwrap();
+    /*
     let mut pwm = [Pwm::with_frequency(Channel::Pwm0,100.0, 0.0,
             Polarity::Normal, true).unwrap(), 
             Pwm::with_frequency(Channel::Pwm1,100.0, 0.0,
@@ -25,7 +26,6 @@ fn main() {
             }
         }
     }
-    /*
     let ultrasonic_gpio = gpio.clone();
     tokio::spawn(async {
         ultrasonic::init_ultrasonic_pins(ultrasonic_gpio).await;
@@ -40,7 +40,7 @@ fn main() {
         stepper::init_stepper_pins(gpio).await;
     });
     */
-    motor::drive(gpio, &pwm, &[100, 100]);
+    motor::drive(gpio, &[100, 100]);
     spin_sleep::sleep(Duration::from_millis(5000));
     println!("Finished sleep. Exiting.");
     //motor::drive(gpio, &pwm, &[0, 0]);
