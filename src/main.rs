@@ -6,13 +6,12 @@ mod ultrasonic;
 mod infrared;
 mod stepper;
 mod motor;
+mod gyro;
 
-//const ENABLEPINS: &[u8] = &[19, 18];
 const DIRECTIONPINS: &[u8] = &[20, 21, 13, 26];
 
 fn main() {
     let gpio = Gpio::new().unwrap();
-    //let mut enable_pins: Vec<_> = ENABLEPINS.iter().map(|pin_number: &u8| { gpio.get(*pin_number).unwrap().into_output()}).collect();
     let mut direction_pins: Vec<_> = DIRECTIONPINS.iter().map(|pin_number: &u8| { gpio.get(*pin_number).unwrap().into_output()}).collect();
     let mut pwm = [Pwm::with_frequency(Channel::Pwm0,100.0, 0.0,
             Polarity::Normal, true).unwrap(), 
@@ -33,9 +32,10 @@ fn main() {
     tokio::spawn(async {
         stepper::init_stepper_pins(gpio).await;
     });
-    */
     motor::drive(&mut pwm, &mut direction_pins, &[100, -100]);
     spin_sleep::sleep(Duration::from_millis(5000));
     println!("Finished sleep. Exiting.");
     motor::drive(&mut pwm, &mut direction_pins, &[0, 0]);
+    */
+    gyro::gyro();
 }
