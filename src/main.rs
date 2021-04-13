@@ -8,6 +8,7 @@ mod stepper;
 mod motor;
 
 const ENABLEPINS: &[u8] = &[18, 19];
+const DIRECTIONPINS: &[u8] = &[13, 26, 20, 21];
 
 fn main() {
     let gpio = Gpio::new().unwrap();
@@ -43,7 +44,20 @@ fn main() {
         stepper::init_stepper_pins(gpio).await;
     });
     */
-    {motor::drive(gpio.clone(), &mut enable_pins, &[100, 100])};
+    let speeds: [i32; 2] = [100, 100];
+    let mut direction_pins: Vec<_> = DIRECTIONPINS.iter().map(|pin_number: &u8| { gpio.get(*pin_number).unwrap().into_output()}).collect();
+    for i in 0..2 {
+        enable_pins[i].set_pwm_frequency(100.0, speeds[i].abs() as f64 / 100.0).unwrap();
+        //speed_pins[i].set_high();
+        if speeds[i] > 0 {
+            direction_pins[i * 2].set_high();
+            direction_pins[i * 2 + 1].set_low();
+        } else {
+            direction_pins[i * 2].set_low();
+            direction_pins[i * 2 + 1].set_high();
+        }
+    }
+    //{motor::drive(gpio.clone(), &mut enable_pins, &[100, 100])};
     spin_sleep::sleep(Duration::from_millis(5000));
     println!("Finished sleep. Exiting.");
     motor::drive(gpio, &mut enable_pins, &[0, 0]);
