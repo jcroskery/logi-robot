@@ -10,10 +10,10 @@ pub async fn drive(gpio: Gpio, speeds: &[i32]) {
     let map = |pin_number: &u8| { gpio.get(*pin_number).unwrap().into_output()};
     let mut speed_pins: Vec<_> = SPEEDPINS.iter().map(map).collect();
     let mut enable_pins: Vec<_> = DIRECTIONPINS.iter().map(map).collect();
-    for i in speed_pins {
+    for i in speed_pins.iter() {
         println!("Speed pin: {}", i.is_set_high());
     }
-    for i in enable_pins {
+    for i in enable_pins.iter() {
         println!("Enable pin: {}", i.is_set_high());
     }
     for i in 0..2 {
