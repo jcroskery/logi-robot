@@ -44,6 +44,7 @@ fn main() {
     });
     */
     {motor::drive(gpio.clone(), &mut enable_pins, &[100, 100])};
+    spin_sleep::sleep(Duration::from_millis(5000));
     println!("Finished sleep. Exiting.");
     motor::drive(gpio, &mut enable_pins, &[0, 0]);
 }
