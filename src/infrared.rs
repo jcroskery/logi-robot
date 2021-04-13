@@ -2,7 +2,7 @@ use rppal::gpio::{InputPin, Gpio, Level, Trigger};
 
 use std::sync::mpsc::channel;
 
-const INFRAREDPIN: u8 = 15;
+const INFRAREDPIN: u8 = 5;
 
 pub async fn init_infrared_pin(gpio: Gpio) {
     loop {
