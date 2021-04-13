@@ -1,6 +1,6 @@
 use rppal::i2c::I2c;
 
-const GYROADDRESS: u16 = 0x68;
+const GYROADDRESS: u16 = 0x69;
 const POWERREGISTER: u8 = 0x6b;
 const GYROREGISTER: u8 = 0x3b;
 
