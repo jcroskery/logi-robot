@@ -4,6 +4,7 @@ use tokio::time::Duration;
 mod ultrasonic;
 mod infrared;
 mod stepper;
+mod motor;
 
 #[tokio::main]
 async fn main() {
@@ -20,9 +21,10 @@ async fn main() {
     });
 
     tokio::spawn(async {
-        stepper::init_stepper_pins(gpio).await;
+        //stepper::init_stepper_pins(gpio).await;
     });
-
-    spin_sleep::sleep(Duration::from_millis(1000));
+    motor::drive(gpio.clone(), &[100, 100]);
+    spin_sleep::sleep(Duration::from_millis(10));
     println!("Finished sleep. Exiting.");
+    motor::drive(gpio, &[0, 0]);
 }

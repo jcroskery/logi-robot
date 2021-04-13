@@ -1,4 +1,4 @@
-use rppal::gpio::{OutputPin, InputPin, Gpio, Trigger, Level};
+use rppal::gpio::{OutputPin, Gpio};
 use tokio::time::Duration;
 
 const PINS: &[u8] = &[4, 17, 27, 22];
