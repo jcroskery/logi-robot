@@ -13,10 +13,11 @@ pub fn gyro() {
     for i in 0..7 {
         if i == 3 {continue;}
         let mut bits: u16 = (buffer[i] as u16) << 8 + (buffer[i + 1] as u16);
+        println!("Bits {} (before conv): {}", i, bits);
         if (bits.leading_ones() > 0) {
             bits = !bits + 1;
         }
-        println!("{}", bits);
+        println!("Bits {} (after conv): {}", i, bits);
     }
     println!("{:?}", buffer);
 }
