@@ -29,9 +29,9 @@ fn main() {
         stepper::init_stepper_pins(gpio).await;
     });
     */
-    motor::drive(gpio.clone(), &pwm, &[100, 100]);
     pwm[0].set_duty_cycle(1.0).unwrap();
-    std::thread::sleep(Duration::from_millis(5000));
+    spin_sleep::sleep(Duration::from_millis(5000));
+    motor::drive(gpio.clone(), &pwm, &[100, 100]);
     println!("Finished sleep. Exiting.");
     motor::drive(gpio, &pwm, &[0, 0]);
 }
