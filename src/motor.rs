@@ -24,6 +24,6 @@ pub fn drive(gpio: Gpio, pwm: &[Pwm], speeds: &[i32]) {
     }
     spin_sleep::sleep(Duration::from_micros(5000));
     for i in enable_pins {
-        println!("Enable pin: {}", i.is_set_high());
+        println!("Enable pin 2: {}", i.is_set_high());
     }
 }
