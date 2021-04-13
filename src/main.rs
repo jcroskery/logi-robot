@@ -42,7 +42,6 @@ fn main() {
     });
     */
     motor::drive(gpio.clone(), &pwm, &[100, 100]);
-    spin_sleep::sleep(Duration::from_millis(5000));
     println!("Finished sleep. Exiting.");
-    //motor::drive(gpio, &pwm, &[0, 0]);
+    motor::drive(gpio, &pwm, &[0, 0]);
 }
