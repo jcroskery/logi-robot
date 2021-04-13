@@ -7,7 +7,7 @@ use std::convert::TryInto;
 const DIRECTIONPINS: &[u8] = &[13, 26, 20, 21];
 const ENABLEPINS: &[u8] = &[18, 19];
 
-pub fn drive(gpio: Gpio, enablespeeds: &[i32]) {
+pub fn drive(gpio: Gpio, speeds: &[i32]) {
     let map = |pin_number: &u8| { gpio.get(*pin_number).unwrap().into_output()};
     let mut direction_pins: Vec<_> = DIRECTIONPINS.iter().map(map).collect();
     let mut enable_pins: Vec<_> = ENABLEPINS.iter().map(map).collect();
