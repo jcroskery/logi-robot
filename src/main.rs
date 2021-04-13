@@ -23,8 +23,8 @@ async fn main() {
     tokio::spawn(async {
         //stepper::init_stepper_pins(gpio).await;
     });
-    motor::drive(gpio.clone(), &[100, 100]);
+    motor::drive(gpio.clone(), &[100, 100]).await;
     spin_sleep::sleep(Duration::from_millis(5000));
     println!("Finished sleep. Exiting.");
-    motor::drive(gpio, &[0, 0]);
+    motor::drive(gpio, &[0, 0]).await;
 }
