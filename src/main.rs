@@ -45,8 +45,8 @@ fn main() {
         stepper::init_stepper_pins(gpio).await;
     });
     */
-    motor::drive(gpio.clone(), &mut enable_pins, &mut direction_pins, &[100, 100]);
+    motor::drive(&mut enable_pins, &mut direction_pins, &[100, 100]);
     spin_sleep::sleep(Duration::from_millis(5000));
     println!("Finished sleep. Exiting.");
-    motor::drive(gpio, &mut enable_pins, &mut direction_pins, &[0, 0]);
+    motor::drive(&mut enable_pins, &mut direction_pins, &[0, 0]);
 }
