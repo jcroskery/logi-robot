@@ -17,7 +17,7 @@ pub async fn drive(gpio: Gpio, speeds: &[i32]) {
         println!("Enable pin: {}", i.is_set_high());
     }
     for i in 0..2 {
-        speed_pins[i].set_pwm_frequency(100.0,speeds[i].abs() as f64 / 100.0);
+        speed_pins[i].set_pwm_frequency(100.0,speeds[i].abs() as f64 / 100.0).unwrap();
         //speed_pins[i].set_high();
         if speeds[i] > 0 {
             enable_pins[i * 2].set_high();
