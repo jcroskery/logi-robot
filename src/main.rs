@@ -6,9 +6,10 @@ mod ultrasonic;
 async fn main() {
     let gpio = Gpio::new().unwrap();
 
-    tokio::spawn(async {
+    let mut handle = tokio::spawn(async {
         ultrasonic::init_ultrasonic_pins(gpio).await;
     });
 
     println!("Hello, world!");
+    futures::future::join(handle).await();
 }
