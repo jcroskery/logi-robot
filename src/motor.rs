@@ -21,4 +21,10 @@ pub async fn drive(gpio: Gpio, speeds: &[i32]) {
             enable_pins[i * 2 + 1].set_high();
         }
     }
+    for i in speed_pins {
+        println!("Speed pin: {}", i);
+    }
+    for i in enable_pins {
+        println!("Enable pin: {}", i);
+    }
 }
