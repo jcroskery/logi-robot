@@ -23,5 +23,6 @@ async fn stepper(pins: &mut [OutputPin]) -> i32 {
             spin_sleep::sleep(Duration::from_micros(900));
         }
     }
-    return 0;
+    pins[0].set_low();
+    return 90;
 }
