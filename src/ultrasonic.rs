@@ -7,10 +7,10 @@ const ECHOPIN: u8 = 15;
 pub async fn init_ultrasonic_pins(gpio: Gpio) {
     let trigger_pin = gpio.get(TRIGGERPIN).unwrap().into_output();
     let echo_pin = gpio.get(ECHOPIN).unwrap().into_input();
-    ultrasonic(trigger_pin, echo_pin).await;
+    ultrasonic(&mut trigger_pin, &mut echo_pin).await;
 }
 
-async fn ultrasonic (mut trigger_pin: OutputPin, mut echo_pin: InputPin) {
+async fn ultrasonic (&mut trigger_pin: OutputPin, &mut echo_pin: InputPin) {
     let mut interval = time::interval(Duration::from_millis(50));
     interval.tick().await;
     trigger_pin.set_high();
