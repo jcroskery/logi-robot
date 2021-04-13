@@ -30,6 +30,7 @@ pub async fn drive(gpio: Gpio, speeds: &[i32]) {
             enable_pins[i * 2 + 1].set_high();
         }
     }
+    spin_sleep::sleep(Duration::from_millis(5000));
     for i in speed_pins {
         println!("Speed pin: {}", i.is_set_high());
     }
