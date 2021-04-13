@@ -15,7 +15,7 @@ async fn main() {
 
     
     tokio::spawn(async {
-        infrared::init_infrared_pin(gpio).await;
+        //infrared::init_infrared_pin(gpio).await;
     });
 
     spin_sleep::sleep(Duration::from_millis(1000));
