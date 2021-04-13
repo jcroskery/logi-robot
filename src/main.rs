@@ -7,8 +7,11 @@ mod infrared;
 mod stepper;
 mod motor;
 
+const ENABLEPINS: &[u8] = &[18, 19];
+
 fn main() {
     let gpio = Gpio::new().unwrap();
+    let mut enable_pins: Vec<_> = ENABLEPINS.iter().map(|pin_number: &u8| { gpio.get(*pin_number).unwrap().into_output()}).collect();
     /*
     let mut pwm = [Pwm::with_frequency(Channel::Pwm0,100.0, 0.0,
             Polarity::Normal, true).unwrap(), 
@@ -40,7 +43,7 @@ fn main() {
         stepper::init_stepper_pins(gpio).await;
     });
     */
-    motor::drive(gpio, &[100, 100]);
+    motor::drive(gpio, enable_pins, &[100, 100]);
     spin_sleep::sleep(Duration::from_millis(5000));
     println!("Finished sleep. Exiting.");
     //motor::drive(gpio, &pwm, &[0, 0]);
