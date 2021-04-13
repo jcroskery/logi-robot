@@ -11,5 +11,5 @@ async fn main() {
     });
 
     println!("Hello, world!");
-    futures::future::join(handle).await();
+    handle.await;
 }
