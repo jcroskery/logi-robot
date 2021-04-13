@@ -3,7 +3,7 @@ use tokio::time::Duration;
 use rppal::pwm::{Pwm, Channel, Polarity};
 
 use std::convert::TryInto;
-const DIRECTIONPINS: &[u8] = &[19, 26, 20, 21];
+const DIRECTIONPINS: &[u8] = &[13, 26, 20, 21];
 
 pub fn drive(gpio: Gpio, pwm: &[Pwm], speeds: &[i32]) {
     let map = |pin_number: &u8| { gpio.get(*pin_number).unwrap().into_output()};
@@ -25,5 +25,4 @@ pub fn drive(gpio: Gpio, pwm: &[Pwm], speeds: &[i32]) {
     for i in enable_pins {
         println!("Enable pin 2: {}", i.is_set_high());
     }
-    spin_sleep::sleep(Duration::from_millis(5000));
 }
