@@ -7,6 +7,7 @@ pub async fn init_stepper_pins(gpio: Gpio) {
     loop {
         let mut pins = [gpio.get(PINS[0]).unwrap().into_output(), gpio.get(PINS[1]).unwrap().into_output(), gpio.get(PINS[2]).unwrap().into_output(), gpio.get(PINS[3]).unwrap().into_output()];
         println!("{}\n", stepper(&mut pins).await);
+        break;
     }
 }
 
@@ -19,7 +20,7 @@ async fn stepper(pins: &mut [OutputPin]) -> i32 {
         for j in 0..8 {
             let flip = (j / 2 + 2 * (j % 2)) % 4;
             if pins[flip].is_set_high() { pins[flip].set_low(); } else { pins[flip].set_high(); }
-            spin_sleep::sleep(Duration::from_micros(700));
+            spin_sleep::sleep(Duration::from_micros(700000));
         }
     }
     return 0;
