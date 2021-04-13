@@ -18,7 +18,7 @@ pub async fn drive(gpio: Gpio, speeds: &[i32]) {
     }
     for i in 0..2 {
         speed_pins[i].set_pwm(Duration::from_millis(10), Duration::from_micros((50 * speeds[i].abs()).try_into().unwrap()));
-        if speeds[i] < 0 {
+        if speeds[i] > 0 {
             enable_pins[i * 2].set_high();
             enable_pins[i * 2 + 1].set_low();
         } else {
