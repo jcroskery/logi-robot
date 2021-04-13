@@ -9,7 +9,7 @@ mod motor;
 
 fn main() {
     let gpio = Gpio::new().unwrap();
-    let pwm = [Pwm::with_frequency(Channel::Pwm0,100.0, 0.0,
+    let mut pwm = [Pwm::with_frequency(Channel::Pwm0,100.0, 0.0,
             Polarity::Normal, true).unwrap(), 
             Pwm::with_frequency(Channel::Pwm1,100.0, 0.0,
             Polarity::Normal, true).unwrap()];
