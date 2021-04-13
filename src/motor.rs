@@ -4,8 +4,6 @@ use rppal::pwm::{Pwm, Channel, Polarity};
 
 use std::convert::TryInto;
 
-const DIRECTIONPINS: &[u8] = &[13, 26, 20, 21];
-
 pub fn drive(enable_pins: &mut Vec<OutputPin>, direction_pins: &mut Vec<OutputPin>, speeds: &[i32]) {
     for i in 0..2 {
         enable_pins[i].set_pwm_frequency(100.0, speeds[i].abs() as f64 / 100.0).unwrap();

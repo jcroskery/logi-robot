@@ -7,8 +7,8 @@ mod infrared;
 mod stepper;
 mod motor;
 
-const ENABLEPINS: &[u8] = &[18, 19];
-const DIRECTIONPINS: &[u8] = &[13, 26, 20, 21];
+const ENABLEPINS: &[u8] = &[19, 18];
+const DIRECTIONPINS: &[u8] = &[20, 21, 13, 26];
 
 fn main() {
     let gpio = Gpio::new().unwrap();
