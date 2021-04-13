@@ -19,7 +19,7 @@ fn main() {
     pwm[1].set_duty_cycle(1.0).unwrap();
     for i in 0..10000000 {
         for j in 0..100000000 {
-            if (i > j + 10000000001) {
+            if (i > j + 1000000001) {
                 panic!("WHWHWHWHWHWHATATATATATAT");
             }
         }
