@@ -20,4 +20,5 @@ async fn main() {
 
     spin_sleep::sleep(Duration::from_millis(1000));
     println!("Finished sleep. Exiting.");
+    return;
 }
