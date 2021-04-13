@@ -44,6 +44,7 @@ fn main() {
         stepper::init_stepper_pins(gpio).await;
     });
     */
+    {
     let speeds: [i32; 2] = [100, 100];
     let mut direction_pins: Vec<_> = DIRECTIONPINS.iter().map(|pin_number: &u8| { gpio.get(*pin_number).unwrap().into_output()}).collect();
     for i in 0..2 {
@@ -56,6 +57,7 @@ fn main() {
             direction_pins[i * 2].set_low();
             direction_pins[i * 2 + 1].set_high();
         }
+    }
     }
     //{motor::drive(gpio.clone(), &mut enable_pins, &[100, 100])};
     spin_sleep::sleep(Duration::from_millis(5000));
