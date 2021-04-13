@@ -31,6 +31,6 @@ async fn ultrasonic (mut trigger_pin: OutputPin, mut echo_pin: InputPin) {
             sender.send(true).unwrap();
         }
     }).unwrap();
-    interval.tick().await;
+    //interval.tick().await;
     receiver.recv().unwrap();
 }
