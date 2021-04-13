@@ -2,7 +2,7 @@ use rppal::gpio::{OutputPin, InputPin, Gpio, Trigger, Level};
 use tokio::time::Duration;
 
 const PINS: &[u8] = &[4, 17, 27, 22];
-const STEPS: &[u8] = &[1, 0, 2, 1, 3, 2, 0, 3];
+const STEPS: &[usize] = &[1, 0, 2, 1, 3, 2, 0, 3];
 
 pub async fn init_stepper_pins(gpio: Gpio) {
     loop {
@@ -20,7 +20,7 @@ async fn stepper(pins: &mut [OutputPin]) -> i32 {
     for i in 0..((90.0 / 360.0 * 512.0 / 64.0 * 63.68395) as i32) {
         for j in 0..8 {
             if pins[STEPS[j]].is_set_high() { pins[STEPS[j]].set_low(); } else { pins[STEPS[j]].set_high(); }
-            spin_sleep::sleep(Duration::from_micros(700000));
+            spin_sleep::sleep(Duration::from_micros(900));
         }
     }
     return 0;
