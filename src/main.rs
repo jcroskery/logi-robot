@@ -1,4 +1,5 @@
 use rppal::gpio::Gpio;
+use tokio::time::Duration;
 
 mod ultrasonic;
 
@@ -6,11 +7,11 @@ mod ultrasonic;
 async fn main() {
     let gpio = Gpio::new().unwrap();
 
-    let handle = tokio::spawn(async {
+    tokio::spawn(async {
         println!("Hello, us!");
         ultrasonic::init_ultrasonic_pins(gpio).await;
     });
 
+    spin_sleep::sleep(Duration::from_millis(1000));
     println!("Hello, you!");
-    handle.await.unwrap();
 }
