@@ -8,8 +8,8 @@ edition = "2018"
 
 [dependencies]
 spin_sleep = "1.0.0"
-tokio = {version = "1.5.0", features = ["full"]}
+#tokio = {version = "1.5.0", features = ["full"]}
 rppal = "0.11.3"
 howlong = "0.1.7"
-websocket = "0.26.2"
-futures = "0.3.14"
+#websocket = "0.26.2"
+#futures = "0.3.14"
