@@ -1,7 +1,7 @@
 use tokio::time::{self, Duration};
 use rppal::gpio::{OutputPin, InputPin, Gpio, Trigger, Level};
 
-use std::sync::{Arc, Mutex};
+//use std::sync::{Arc, Mutex};
 
 const TRIGGERPIN: u8 = 14;
 const ECHOPIN: u8 = 15;
@@ -25,7 +25,7 @@ async fn ultrasonic (mut trigger_pin: OutputPin, mut echo_pin: InputPin) {
         if level == Level::High {
             timer.start();
         } else {
-            println!("#{}\n", timer.elapsed().subsec_nanos());
+            println!("{}\n", timer.elapsed().subsec_nanos() as f32 / 1000.0 * 0.017);
         }
     }).unwrap();
     interval.tick().await;
