@@ -31,7 +31,7 @@ fn main() {
     */
     motor::drive(gpio.clone(), &pwm, &[100, 100]);
     pwm[0].set_duty_cycle(1.0).unwrap();
-    spin_sleep::sleep(Duration::from_millis(5000));
+    std::thread::sleep(Duration::from_millis(5000));
     println!("Finished sleep. Exiting.");
     motor::drive(gpio, &pwm, &[0, 0]);
 }
