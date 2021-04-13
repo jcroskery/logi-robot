@@ -11,7 +11,7 @@ pub fn drive(gpio: Gpio, speeds: &[i32]) {
     let mut direction_pins: Vec<_> = DIRECTIONPINS.iter().map(map).collect();
     let mut enable_pins: Vec<_> = ENABLEPINS.iter().map(map).collect();
     for i in 0..2 {
-        enable_pins[i].set_pwm_frequency(100, speeds[i].abs() as f64 / 100.0).unwrap();
+        enable_pins[i].set_pwm_frequency(100.0, speeds[i].abs() as f64 / 100.0).unwrap();
         //speed_pins[i].set_high();
         if speeds[i] > 0 {
             direction_pins[i * 2].set_high();
