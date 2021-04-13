@@ -19,6 +19,7 @@ async fn stepper(pins: &mut [OutputPin]) -> i32 {
     for i in 0..((90.0 / 360.0 * 512.0 / 64.0 * 63.68395) as i32) {
         for j in 0..8 {
             let flip = (j / 2 + 2 * (j % 2)) % 4;
+            println!("Flip {}", flip);
             if pins[flip].is_set_high() { pins[flip].set_low(); } else { pins[flip].set_high(); }
             spin_sleep::sleep(Duration::from_micros(700000));
         }
