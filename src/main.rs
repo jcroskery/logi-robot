@@ -7,7 +7,7 @@ async fn main() {
     let gpio = Gpio::new().unwrap();
 
     tokio::spawn(async {
-        ultrasonic::init_ultrasonic_pins(gpio);
+        ultrasonic::init_ultrasonic_pins(gpio).await;
     });
 
     println!("Hello, world!");
