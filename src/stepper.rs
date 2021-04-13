@@ -9,7 +9,6 @@ pub async fn init_stepper_pins(gpio: Gpio) {
         let mut pins = [gpio.get(PINS[0]).unwrap().into_output(), gpio.get(PINS[1]).unwrap().into_output(), gpio.get(PINS[2]).unwrap().into_output(), gpio.get(PINS[3]).unwrap().into_output()];
         println!("{}\n", stepper(&mut pins, 90).await);
         println!("{}\n", stepper(&mut pins, -90).await);
-        break;
     }
 }
 
