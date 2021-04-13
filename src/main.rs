@@ -1,6 +1,6 @@
 use rppal::gpio::Gpio;
 use rppal::pwm::{Pwm, Channel, Polarity};
-use tokio::time::Duration;
+use std::time::Duration;
 
 mod ultrasonic;
 mod infrared;
@@ -44,6 +44,7 @@ fn main() {
     });
     */
     {motor::drive(gpio.clone(), &mut enable_pins, &[100, 100])};
+    println!("{}", enable_pins[0].pwm_frequency());
     spin_sleep::sleep(Duration::from_millis(5000));
     println!("Finished sleep. Exiting.");
     motor::drive(gpio, &mut enable_pins, &[0, 0]);
