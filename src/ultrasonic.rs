@@ -17,7 +17,9 @@ async fn ultrasonic (mut trigger_pin: OutputPin, mut echo_pin: InputPin) {
     spin_sleep::sleep(Duration::from_millis(10));
     trigger_pin.set_low();
     let mut timer = howlong::HighResolutionTimer::new();
+    println!("This happens");
     echo_pin.set_async_interrupt(Trigger::Both, move |level| {
+        println!("Happens");
         if level == Level::High {
             timer.start();
         } else {
