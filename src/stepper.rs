@@ -1,5 +1,5 @@
 use rppal::gpio::{OutputPin, Gpio};
-use tokio::time::Duration;
+use std::time::Duration;
 
 const PINS: &[u8] = &[4, 17, 27, 22];
 const STEPS: &[usize] = &[1, 0, 2, 1, 3, 2, 0, 3];

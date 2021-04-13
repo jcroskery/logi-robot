@@ -1,5 +1,5 @@
 use rppal::gpio::{OutputPin, InputPin, Gpio, Trigger, Level};
-use tokio::time::Duration;
+use std::time::Duration;
 use rppal::pwm::{Pwm, Channel, Polarity};
 
 use std::convert::TryInto;
