@@ -1,4 +1,5 @@
 use rppal::gpio::Gpio;
+use rppal::pwm::{Pwm, Channel};
 use tokio::time::Duration;
 
 mod ultrasonic;
