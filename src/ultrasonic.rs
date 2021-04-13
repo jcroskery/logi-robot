@@ -19,14 +19,15 @@ async fn ultrasonic (mut trigger_pin: OutputPin, mut echo_pin: InputPin) {
     trigger_pin.set_high();
     spin_sleep::sleep(Duration::from_millis(10));
     trigger_pin.set_low();
-    let timer = Arc::new(Mutex::new(howlong::HighResolutionTimer::new()));
+    let timer = howlong::HighResolutionTimer::new();
+    timer.stop();
     echo_pin.set_async_interrupt(Trigger::Both, move |level| {
         if level == Level::High {
             println!("Happens");
-            {timer.lock().unwrap().stop();}
-            {timer.lock().unwrap().start();}
+            timer.start();
+            //{timer.lock().unwrap().start();}
         } else {
-            println!("{}\n", timer.lock().unwrap().elapsed().subsec_nanos() as f32 / 1000.0 * 0.017);
+            println!("{}\n", timer.elapsed().subsec_nanos() as f32 / 1000.0 * 0.017);
         }
     }).unwrap();
     interval.tick().await;
