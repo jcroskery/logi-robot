@@ -10,7 +10,7 @@ pub async fn init_infrared_pin(gpio: Gpio) {
     }
 }
 
-async fn infrared (infrared_pin: InputPin) -> bool {
+async fn infrared (mut infrared_pin: InputPin) -> bool {
     let (sender, receiver) = channel();
     infrared_pin.set_async_interrupt(Trigger::Both, move |level| {
         sender.send(level == Level::High).unwrap();
