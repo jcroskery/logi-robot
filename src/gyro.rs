@@ -17,7 +17,6 @@ pub fn gyro() -> Vec<f64> {
         if i == 3 {continue;}
         let mut bits: u16 = ((buffer[i * 2] as u16) << 8) + (buffer[i * 2 + 1] as u16);
         let mut combined_bits = 0.0;
-        println!("Bits {} {} (before conv): {}", i, bits.leading_ones(), bits);
         if (bits.leading_ones() > 0) {
             combined_bits = -((!bits + 1) as f64);
         } else {
@@ -29,7 +28,6 @@ pub fn gyro() -> Vec<f64> {
             gyro_readings.push(combined_bits / 16384.0);
         }
     }
-    println!("{:?}", buffer);
     println!("{:?}", gyro_readings);
     return gyro_readings;
 }

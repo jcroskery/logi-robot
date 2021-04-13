@@ -37,5 +37,7 @@ fn main() {
     println!("Finished sleep. Exiting.");
     motor::drive(&mut pwm, &mut direction_pins, &[0, 0]);
     */
-    gyro::gyro();
+    loop {
+        gyro::gyro();
+    }
 }
