@@ -13,7 +13,8 @@ fn main() {
             Polarity::Normal, true).unwrap(), 
             Pwm::with_frequency(Channel::Pwm1,100.0, 0.0,
             Polarity::Normal, true).unwrap()];
-
+    pwm[0].set_reset_on_drop(false);
+    pwm[1].set_reset_on_drop(false);
     /*
     let ultrasonic_gpio = gpio.clone();
     tokio::spawn(async {
