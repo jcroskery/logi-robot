@@ -7,8 +7,7 @@ mod infrared;
 mod stepper;
 mod motor;
 
-#[tokio::main]
-async fn main() {
+fn main() {
     let gpio = Gpio::new().unwrap();
     let pwm = [Pwm::with_frequency(Channel::Pwm0,100.0, 0.0,
             Polarity::Normal, true).unwrap(), 
@@ -30,9 +29,9 @@ async fn main() {
         stepper::init_stepper_pins(gpio).await;
     });
     */
-    
-    motor::drive(gpio.clone(), &pwm, &[100, 100]).await;
+
+    motor::drive(gpio.clone(), &pwm, &[100, 100]);
     spin_sleep::sleep(Duration::from_millis(5000));
     println!("Finished sleep. Exiting.");
-    motor::drive(gpio, &pwm, &[0, 0]).await;
+    motor::drive(gpio, &pwm, &[0, 0]);
 }

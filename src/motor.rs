@@ -5,7 +5,7 @@ use rppal::pwm::{Pwm, Channel, Polarity};
 use std::convert::TryInto;
 const DIRECTIONPINS: &[u8] = &[19, 26, 20, 21];
 
-pub async fn drive(gpio: Gpio, pwm: &[Pwm], speeds: &[i32]) {
+pub fn drive(gpio: Gpio, pwm: &[Pwm], speeds: &[i32]) {
     let map = |pin_number: &u8| { gpio.get(*pin_number).unwrap().into_output()};
     let mut enable_pins: Vec<_> = DIRECTIONPINS.iter().map(map).collect();
     for i in enable_pins.iter() {
