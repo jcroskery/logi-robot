@@ -19,7 +19,7 @@ pub fn gyro() -> Vec<f64> {
         let mut combined_bits = 0.0;
         println!("Bits {} {} (before conv): {}", i, bits.leading_ones(), bits);
         if (bits.leading_ones() > 0) {
-            combined_bits = (!bits + 1) as f64;
+            combined_bits = -((!bits + 1) as f64);
         } else {
             combined_bits = bits as f64;
         }
