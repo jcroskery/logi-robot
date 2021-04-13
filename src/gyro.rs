@@ -16,6 +16,7 @@ pub fn gyro() {
         if (bits.leading_ones() > 0) {
             bits = !bits + 1;
         }
+        println!("{}", bits);
     }
     println!("{:?}", buffer);
 }
