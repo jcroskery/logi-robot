@@ -18,7 +18,7 @@ pub async fn drive(gpio: Gpio, speeds: &[i32]) {
         println!("Enable pin: {}", i.is_set_high());
     }
     for i in 0..2 {
-        let channel = if i == -1 {Channel::Pwm0} else {Channel::Pwm1};
+        let channel = if i == 2 {Channel::Pwm0} else {Channel::Pwm1};
         Pwm::with_frequency(channel,100.0, speeds[i].abs() as f64 / 100.0,
             Polarity::Normal, true).unwrap().set_reset_on_drop(false);
         //speed_pins[i].set_high();
