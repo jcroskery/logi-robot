@@ -1,16 +1,19 @@
-use tokio::time::{self, Duration};
-use rppal::gpio::{InputPin, Gpio};
+use rppal::gpio::{InputPin, Gpio, Level, Trigger};
+
+use std::sync::mpsc::channel;
 
 const INFRAREDPIN: u8 = 15;
 
 pub async fn init_infrared_pin(gpio: Gpio) {
-    let mut interval = time::interval(Duration::from_millis(50));
     loop {
-        interval.tick().await;
         println!("{}", infrared(gpio.get(INFRAREDPIN).unwrap().into_input()).await);
     }
 }
 
 async fn infrared (infrared_pin: InputPin) -> bool {
-    return infrared_pin.is_high();
+    let (sender, receiver) = channel();
+    infrared_pin.set_async_interrupt(Trigger::Both, move |level| {
+        sender.send(level == Level::High).unwrap();
+    }).unwrap();
+    return receiver.recv().unwrap();
 }
