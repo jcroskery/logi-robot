@@ -20,7 +20,7 @@ async fn stepper(pins: &mut [OutputPin], dist: i32) -> i32 {
     for i in 0..((dist.abs() as f32 / 360.0 * 512.0 / 64.0 * 63.68395) as i32) {
         let fore = |j: usize| {
             if pins[STEPS[j]].is_set_high() { pins[STEPS[j]].set_low(); } else { pins[STEPS[j]].set_high(); }
-            spin_sleep::sleep(Duration::from_micros(900));
+            spin_sleep::sleep(Duration::from_micros(900000));
         };
         if dist < 0 { 
             (0..8).rev().for_each(fore); 
