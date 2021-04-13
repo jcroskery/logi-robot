@@ -43,7 +43,7 @@ fn main() {
         stepper::init_stepper_pins(gpio).await;
     });
     */
-    motor::drive(gpio, &mut enable_pins, &[100, 100]);
+    {motor::drive(gpio.clone(), &mut enable_pins, &[100, 100])};
     println!("Finished sleep. Exiting.");
-    //motor::drive(gpio, &pwm, &[0, 0]);
+    motor::drive(gpio, &mut enable_pins, &[0, 0]);
 }
