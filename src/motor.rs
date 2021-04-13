@@ -12,7 +12,6 @@ pub fn drive(gpio: Gpio, pwm: &[Pwm], speeds: &[i32]) {
         println!("Enable pin: {}", i.is_set_high());
     }
     for i in 0..2 {
-        let channel = if i != 2 {Channel::Pwm0} else {Channel::Pwm1};
         pwm[i].set_duty_cycle(speeds[i].abs() as f64 / 100.0).unwrap();
         //speed_pins[i].set_high();
         if speeds[i] > 0 {
