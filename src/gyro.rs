@@ -10,5 +10,12 @@ pub fn gyro() {
     i2c.set_slave_address(GYROADDRESS).unwrap();
     i2c.block_write(POWERREGISTER, &[0x01]).unwrap();
     i2c.block_read(GYROREGISTER, &mut buffer).unwrap();
+    for i in 0..7 {
+        if i == 3 {continue;}
+        let mut bits: u16 = (buffer[i] as u16) << 8 + (buffer[i + 1] as u16);
+        if (bits.leading_ones() > 0) {
+            bits = !bits + 1;
+        }
+    }
     println!("{:?}", buffer);
 }
