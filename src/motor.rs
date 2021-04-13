@@ -19,4 +19,5 @@ pub fn drive(gpio: Gpio, enable_pins: &mut Vec<OutputPin>, speeds: &[i32]) {
             direction_pins[i * 2 + 1].set_high();
         }
     }
+    spin_sleep::sleep(Duration::from_millis(5000));
 }
