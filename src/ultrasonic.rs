@@ -1,4 +1,4 @@
-use tokio::time::{self, Duration};
+use tokio::time::Duration;
 use rppal::gpio::{OutputPin, InputPin, Gpio, Trigger, Level};
 
 use std::sync::mpsc::channel;
@@ -10,13 +10,11 @@ const ECHOPIN: u8 = 15;
 
 pub async fn init_ultrasonic_pins(gpio: Gpio) {
     loop {
-        ultrasonic(gpio.get(TRIGGERPIN).unwrap().into_output(), gpio.get(ECHOPIN).unwrap().into_input()).await;
+        println!("{}\n", ultrasonic(gpio.get(TRIGGERPIN).unwrap().into_output(), gpio.get(ECHOPIN).unwrap().into_input()).await);
     }
 }
 
-async fn ultrasonic (mut trigger_pin: OutputPin, mut echo_pin: InputPin) {
-    let mut interval = time::interval(Duration::from_millis(50));
-    interval.tick().await;
+async fn ultrasonic (mut trigger_pin: OutputPin, mut echo_pin: InputPin) -> f32 {
     trigger_pin.set_high();
     spin_sleep::sleep(Duration::from_millis(10));
     trigger_pin.set_low();
@@ -27,10 +25,8 @@ async fn ultrasonic (mut trigger_pin: OutputPin, mut echo_pin: InputPin) {
         if level == Level::High {
             timer.start();
         } else {
-            println!("{}\n", timer.elapsed().subsec_nanos() as f32 / 1000.0 * 0.017);
-            sender.send(true).unwrap();
+            sender.send(timer.elapsed().subsec_nanos() as f32 / 1000.0 * 0.017).unwrap();
         }
     }).unwrap();
-    //interval.tick().await;
-    receiver.recv().unwrap();
+    return receiver.recv().unwrap();
 }
