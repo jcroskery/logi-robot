@@ -1,12 +1,12 @@
 use tokio::time::{self, Duration};
 use rppal::gpio::{OutputPin, InputPin, Gpio, Trigger, Level};
 
-const TRIGGERPIN: i32 = 14;
-const ECHOPIN: i32 = 15;
+const TRIGGERPIN: u8 = 14;
+const ECHOPIN: u8 = 15;
 
-async fn init_ultrasonic_pins(gpio: Gpio) {
-    let mut triggerPin = gpio.get(TRIGGERPIN)?.into_output();
-    let mut echoPin = gpio.get(ECHOPIN)?.into_input();
+pub async fn init_ultrasonic_pins(gpio: Gpio) {
+    let mut triggerPin = gpio.get(TRIGGERPIN).unwrap().into_output();
+    let mut echoPin = gpio.get(ECHOPIN).unwrap().into_input();
     ultrasonic(triggerPin, echoPin);
 }
 
@@ -18,10 +18,10 @@ async fn ultrasonic (mut triggerPin: OutputPin, mut echoPin: InputPin) {
     triggerPin.set_low();
     let mut timer = howlong::HighResolutionTimer::new();
     echoPin.set_async_interrupt(Trigger::Both, move |level| {
-        if (level == Level::High) {
+        if level == Level::High {
             timer.start();
         } else {
-            println!("%l\n", timer.elapsed().subsec_nanos());
+            println!("#{}\n", timer.elapsed().subsec_nanos());
         }
     });
 }
