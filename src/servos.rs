@@ -109,19 +109,24 @@ trait Servo {
     fn init(&mut self) -> bool {
         self.send_wakeup() && self.send_type_check()
     }
+    fn try_send_and_receive(&mut self, desired_value: Option<u8>, undesired_value: Option<u8>) -> bool {
+        let bytes = self.get_bytes();
+        for _ in 0..5 {
+            println!("Sending {:?} message for module {} on pin {}.", bytes, self.get_module_position(), self.get_pin_number());
+            let byte = self.send_and_receive(bytes.clone());
+            if desired_value.unwrap_or(!byte) == byte || undesired_value.unwrap_or(byte) != byte { 
+                return true; 
+            }
+        }
+        false
+    }
     fn send_wakeup(&mut self) -> bool {
         let mut bytes = self.get_bytes();
         for i in self.get_module_position()..4 {
             bytes[i as usize] = 0xfe;
         }
         self.set_bytes(bytes.clone());
-        for _ in 0..5 {
-            println!("Sending initialization message for module {} on pin {}.", self.get_module_position(), self.get_pin_number());
-            if self.send_and_receive(bytes.clone()) == 0xfe {
-                return true;
-            }
-        }
-        false
+        self.try_send_and_receive(Some(0xfe), None)
     }
     fn send_type_check(&mut self) -> bool {
         let mut bytes = self.get_bytes();
