@@ -52,6 +52,7 @@ pub fn receive_byte(gpio: Gpio, pin_number: u8) -> u8 {
             sender.send(false).unwrap();
         }
     }).unwrap();
+    pin.set_reset_on_drop(false);
     println!("{:?}", pin);
     for i in 0..8 {
         println!("iter {}", i);
