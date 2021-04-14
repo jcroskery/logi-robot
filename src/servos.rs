@@ -52,6 +52,7 @@ pub fn receive_byte(gpio: Gpio, pin_number: u8) -> u8 {
         }
     }).unwrap();
     for i in 0..8 {
+        println!("iter {}", i);
         if receiver.recv().unwrap() {
             timer.start();
         } else {
