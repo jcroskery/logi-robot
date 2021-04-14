@@ -92,7 +92,7 @@ trait Servo {
     fn get_pin_number(&self) -> u8;
     fn get_module_position(&self) -> u8;
     fn set_colour(&mut self, colour: (u8, u8, u8));
-    fn update_colour(&mut self) -> bool;
+    fn update(&mut self) -> bool;
     fn get_colour(&self) -> (u8, u8, u8);
     fn set_lim(&mut self, lim: bool) {}
     fn set_pos(&mut self, motor_position: i32) {}
@@ -188,7 +188,7 @@ impl Servo for Led {
     fn get_module_position(&self) -> u8 { self.module_position }
     fn get_bytes(&self) -> Vec<u8> { self.bytes.lock().unwrap().clone() }
 
-    fn update_colour(&mut self) -> bool {
+    fn update(&mut self) -> bool {
         self.update_colour_bit_1() && self.update_colour_bit_2()
     }
 }
@@ -201,6 +201,20 @@ struct Motor {
     motor_position: i32,
     lim: bool,
     bytes: Arc<Mutex<Vec<u8>>>
+}
+
+impl Motor {
+    fn update_colour(&mut self) -> bool {
+        let mut bytes = self.get_bytes();
+        let colour_bits = (self.colour.2 << 2) + (self.colour.1 << 1) + self.colour.0;
+        bytes[self.get_module_position() as usize] = 0xf0 | colour_bits;
+        self.set_bytes(bytes.clone());
+        self.try_send_and_receive(None, Some(0x00))
+    }
+
+    fn update_pos(&mut self) -> bool {
+        true
+    }
 }
 
 impl Servo for Motor {
@@ -251,12 +265,8 @@ impl Servo for Motor {
         Some(self.motor_position)
     }
 
-    fn update_colour(&mut self) -> bool {
-        let mut bytes = self.get_bytes();
-        let colour_bits = (self.colour.2 << 2) + (self.colour.1 << 1) + self.colour.0;
-        bytes[self.get_module_position() as usize] = 0xf0 | colour_bits;
-        self.set_bytes(bytes.clone());
-        self.try_send_and_receive(None, Some(0x00))
+    fn update(&mut self) -> bool {
+        self.update_colour() && self.update_pos()
     }
 }
 
@@ -302,7 +312,7 @@ impl ServoChain {
     }
     fn try_update(&mut self) -> bool {
         for servo in &mut self.servos {
-            if !servo.update_colour() {
+            if !servo.update() {
                 return false;  
             }
         }
