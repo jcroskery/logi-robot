@@ -254,6 +254,7 @@ impl Servo for Motor {
     fn update_colour(&mut self) -> bool {
         let mut bytes = self.get_bytes();
         let colour_bits = self.colour.2 << 2 + self.colour.1 << 1 + self.colour.0;
+        println!("Colour bits: {}", colour_bits);
         bytes[self.get_module_position() as usize] = 0xf0 | colour_bits;
         self.set_bytes(bytes.clone());
         self.try_send_and_receive(None, Some(0x00))
