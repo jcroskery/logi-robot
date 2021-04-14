@@ -300,5 +300,23 @@ impl ServoChain {
         }
         println!("Successfully initialized servo chain on pin {}.", self.pin_number);
     }
+    fn try_update(&mut self) -> bool {
+        for servo in &mut self.servos {
+            if !servo.update_colour() {
+                return false;  
+            }
+        }
+        true
+    }
+    pub fn update(&mut self) {
+        loop {
+            if self.try_update() { 
+                break; 
+            } else {
+                self.init();
+            }
+        }
+        println!("Successfully updated servo chain on pin {}.", self.pin_number);
+    }
 }
 
