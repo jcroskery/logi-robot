@@ -30,7 +30,7 @@ fn main() {
     //    gpio.get(INFRAREDPIN).unwrap().into_io(Mode::Output)];
     //servos::send_bytes(gpio.clone(), LEDPIN, &[254, 0, 0, 0], 0);
     //println!("{}", servos::receive_byte(gpio.clone(), LEDPIN));
-    let infrared_chain = servos::ServoChain::new(gpio, INFRAREDPIN, 
+    let infrared_chain = servos::ServoChain::new(gpio, ULTRASONICPIN, 
         vec![servos::ServoType::MOTOR, servos::ServoType::MOTOR]);
     
     //let ultrasonic_gpio = gpio.clone();
