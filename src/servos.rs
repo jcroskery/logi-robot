@@ -250,7 +250,7 @@ impl ServoChain {
         loop {
             if self.try_init() { break; }
         }
-        println!("Successfully initialized servo chain");
+        println!("Successfully initialized servo chain on pin {}.", self.pin_number);
     }
 }
 
