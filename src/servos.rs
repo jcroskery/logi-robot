@@ -132,14 +132,8 @@ trait Servo {
         let mut bytes = self.get_bytes();
         bytes[self.get_module_position() as usize] = 0xfc;
         self.set_bytes(bytes.clone());
-        for _ in 0..5 {
-            println!("Sending type message for module {} on pin {}.", self.get_module_position(), self.get_pin_number());
-            let correct_type_response = if self.get_type() == ServoType::MOTOR { 0x01 } else { 0x02 };
-            if self.send_and_receive(bytes.clone()) == correct_type_response {
-                return true;
-            }
-        }
-        false
+        let correct_type_response = if self.get_type() == ServoType::MOTOR { 0x01 } else { 0x02 };
+        self.try_send_and_receive(Some(correct_type_response), None)
     }
 }
 
