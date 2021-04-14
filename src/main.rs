@@ -47,6 +47,8 @@ fn main() {
     
     ultrasonic::init_ultrasonic_pins(gpio.clone(), sender.clone());
 
+    gyro::init_gyro(sender.clone());
+
     loop {
         println!("JSON: {}", receiver.recv().unwrap());
     }
