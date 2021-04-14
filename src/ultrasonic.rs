@@ -8,13 +8,13 @@ use std::sync::mpsc::channel;
 const TRIGGERPIN: u8 = 14;
 const ECHOPIN: u8 = 15;
 
-pub async fn init_ultrasonic_pins(gpio: Gpio) {
+pub fn init_ultrasonic_pins(gpio: Gpio) {
     loop {
-        println!("{}\n", ultrasonic(gpio.get(TRIGGERPIN).unwrap().into_output(), gpio.get(ECHOPIN).unwrap().into_input()).await);
+        println!("{}\n", ultrasonic(gpio.get(TRIGGERPIN).unwrap().into_output(), gpio.get(ECHOPIN).unwrap().into_input()));
     }
 }
 
-async fn ultrasonic (mut trigger_pin: OutputPin, mut echo_pin: InputPin) -> f32 {
+fn ultrasonic (mut trigger_pin: OutputPin, mut echo_pin: InputPin) -> f32 {
     trigger_pin.set_high();
     spin_sleep::sleep(Duration::from_millis(10));
     trigger_pin.set_low();
