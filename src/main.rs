@@ -25,9 +25,8 @@ fn main() {
     //let mut servo_pins = [gpio.get(LEDPIN).unwrap().into_io(Mode::Output), 
     //    gpio.get(ULTRASONICPIN).unwrap().into_io(Mode::Output), 
     //    gpio.get(INFRAREDPIN).unwrap().into_io(Mode::Output)];
-    //servos::send_bytes(gpio.clone(), LEDPIN, &[254, 0, 0, 0], 0);
-    let mut led_pin = gpio.get(LEDPIN).unwrap().into_input();
-    println!("{}", servos::receive_byte(&mut led_pin));
+    servos::send_bytes(gpio.clone(), LEDPIN, &[254, 0, 0, 0], 0);
+    //println!("{}", servos::receive_byte(gpio.clone(), LEDPIN));
     /*
     let ultrasonic_gpio = gpio.clone();
     tokio::spawn(async {

@@ -38,7 +38,8 @@ pub fn send_bytes(gpio: Gpio, pin_number: u8, bytes: &[u8], module: u8) {
     send_byte(&mut pin, calculate_checksum(bytes, module));
 }
 
-pub fn receive_byte(pin: &mut InputPin) -> u8 {
+pub fn receive_byte(gpio: Gpio, pin_number: u8) -> u8 {
+    let mut pin = gpio.get(pin_number).unwrap().into_input();
     let mut received_byte = 0;
     let mut timer = howlong::HighResolutionTimer::new();
     timer.stop();
