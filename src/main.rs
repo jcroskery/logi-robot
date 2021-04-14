@@ -40,6 +40,8 @@ fn main() {
     infrared_chain.lock().unwrap().set_pos(90, 1);
     led_chain.lock().unwrap().set_colour((7, 0, 0), 0);
     println!("LIM reading: {}", infrared_chain.lock().unwrap().get_pos(0).unwrap());
+    std::thread::sleep(Duration::from_secs(1));
+    println!("LIM reading: {}", infrared_chain.lock().unwrap().get_pos(0).unwrap());
     //let ultrasonic_gpio = gpio.clone();
     //ultrasonic::init_ultrasonic_pins(gpio);
     /*
