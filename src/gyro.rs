@@ -16,7 +16,7 @@ pub fn init_gyro(channel: Sender<serde_json::Value>) {
             channel.send(serde_json::json!({
                 "gyroscope": gyro_readings,
                 "d_time": time_elapsed
-            }));
+            }).unwrap());
         }
     });
 }
