@@ -44,15 +44,21 @@ pub fn receive_byte(gpio: Gpio, pin_number: u8) -> u8 {
     let mut received_byte = 0;
     let mut timer = howlong::HighResolutionTimer::new();
     timer.stop();
-    let (sender, receiver) = channel();
+    let (pin_sender, receiver) = channel();
+    let timeout_sender = pin_sender.clone();
     pin.set_async_interrupt(Trigger::Both, move |level| {
         if level == Level::High {
-            sender.send(true).unwrap();
+            pin_sender.send(true).unwrap();
         } else {
-            sender.send(false).unwrap();
+            pin_sender.send(false).unwrap();
         }
     });
-    println!("Receiving byte on {}.", pin_number);
+    println!("Receiving byte on pin {}.", pin_number);
+    std::thread::spawn(move || {
+        std::thread::sleep(Duration::from_millis(50));
+        timeout_sender.send(false);
+        timeout_sender.send(false);
+    });
     for i in 0..8 {
         if receiver.recv().unwrap() {
             timer.start();
