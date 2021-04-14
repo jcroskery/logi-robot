@@ -37,9 +37,10 @@ fn main() {
     let mut led_chain = servos::ServoChain::new(gpio.clone(), LEDPIN, 
         vec![servos::ServoType::LED]);
     infrared_chain.set_lim(true, 0);
-    //infrared_chain.set_lim(true, 1);
+    infrared_chain.set_pos(90, 1);
     infrared_chain.update();
     ultrasonic_chain.update();
+    led_chain.set_colour((7, 0, 0), 0);
     led_chain.update();
     
     //let ultrasonic_gpio = gpio.clone();

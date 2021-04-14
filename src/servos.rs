@@ -347,6 +347,12 @@ impl ServoChain {
     pub fn set_lim(&mut self, lim: bool, module_position: usize) {
         self.servos[module_position].set_lim(lim);
     }
+    pub fn set_colour(&mut self, colour: (u8, u8, u8), module_position: usize) {
+        self.servos[module_position].set_colour(colour);
+    }
+    pub fn set_pos(&mut self, pos: i32, module_position: usize) {
+        self.servos[module_position].set_pos(pos);
+    }
     pub fn update(&mut self) {
         loop {
             if self.try_update() { 
