@@ -45,7 +45,7 @@ fn main() {
 
     infrared::init_infrared_pin(gpio.clone(), sender.clone());
     
-
+    ultrasonic::init_ultrasonic_pins(gpio.clone(), sender.clone());
 
     loop {
         println!("JSON: {}", receiver.recv().unwrap());

@@ -6,10 +6,17 @@ use std::sync::mpsc::{Sender, channel};
 const TRIGGERPIN: u8 = 14;
 const ECHOPIN: u8 = 15;
 
-pub fn init_ultrasonic_pins(gpio: Gpio) {
-    loop {
-        println!("{}\n", ultrasonic(gpio.get(TRIGGERPIN).unwrap().into_output(), gpio.get(ECHOPIN).unwrap().into_input()));
-    }
+pub fn init_ultrasonic_pins(gpio: Gpio, channel: Sender<serde_json::Value>) {
+    std::thread::spawn(move || {
+        loop {
+            std::thread::sleep(Duration::from_millis(50));
+            let trigger_pin = gpio.get(TRIGGERPIN).unwrap().into_output();
+            let echo_pin =  gpio.get(ECHOPIN).unwrap().into_input();
+            channel.send(serde_json::json!({
+                "ultrasonic": ultrasonic(trigger_pin, echo_pin)
+            }));
+        }
+    });
 }
 
 fn ultrasonic (mut trigger_pin: OutputPin, mut echo_pin: InputPin) -> f32 {
