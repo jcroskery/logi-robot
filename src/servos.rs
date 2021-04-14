@@ -45,6 +45,7 @@ pub fn receive_byte(gpio: Gpio, pin_number: u8) -> u8 {
     timer.stop();
     let (sender, receiver) = channel();
     pin.set_async_interrupt(Trigger::Both, move |level| {
+        println!("Received message");
         if level == Level::High {
             sender.send(true).unwrap();
         } else {
