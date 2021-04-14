@@ -50,9 +50,9 @@ pub fn receive_byte(gpio: Gpio, pin_number: u8) -> u8 {
     let timeout_sender = pin_sender.clone();
     pin.set_async_interrupt(Trigger::Both, move |level| {
         if level == Level::High {
-            pin_sender.send(true).unwrap();
+            pin_sender.send(true).unwrap_or(());
         } else {
-            pin_sender.send(false).unwrap();
+            pin_sender.send(false).unwrap_or(());
         }
     });
     std::thread::spawn(move || {
