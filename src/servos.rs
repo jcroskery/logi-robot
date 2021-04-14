@@ -209,7 +209,7 @@ impl Servo for Motor {
             gpio,
             pin_number,
             module_position,
-            colour: (0, 0, 7),
+            colour: (0, 0, 1),
             motor_position: 0,
             lim: false,
             bytes
