@@ -1,6 +1,7 @@
 use rppal::gpio::{Gpio, Mode};
 use rppal::pwm::{Pwm, Channel, Polarity};
-use servos::ServoChain;
+
+use std::sync::mpsc::channel;
 use std::time::Duration;
 
 mod ultrasonic;
@@ -36,6 +37,14 @@ fn main() {
         vec![servos::ServoType::MOTOR, servos::ServoType::MOTOR]);
     let mut led_chain = servos::ServoChain::new(gpio.clone(), LEDPIN, 
         vec![servos::ServoType::LED]);
+    let (sender, receiver) = channel();
+    infrared_chain.lock().unwrap().set_lim(true, 0);
+    servos::ServoChain::start_get_data_thread(infrared_chain, sender.clone());
+    servos::ServoChain::start_get_data_thread(ultrasonic_chain, sender.clone());
+    loop {
+        println!("JSON: {}", receiver.recv().unwrap());
+    }
+    /* 
     infrared_chain.lock().unwrap().set_lim(true, 0);
     infrared_chain.lock().unwrap().set_pos(90, 1);
     led_chain.lock().unwrap().set_colour((7, 0, 0), 0);
@@ -44,7 +53,7 @@ fn main() {
     println!("LIM reading: {}", infrared_chain.lock().unwrap().get_pos(0).unwrap());
     //let ultrasonic_gpio = gpio.clone();
     //ultrasonic::init_ultrasonic_pins(gpio);
-    /*
+    
 
     let infrared_gpio = gpio.clone();
     tokio::spawn(async {

@@ -2,7 +2,7 @@ use rppal::gpio::{OutputPin, InputPin, Gpio, Trigger, Level, Mode};
 
 use std::time::Duration;
 use std::sync::{Mutex, Arc};
-use std::sync::mpsc::channel;
+use std::sync::mpsc::{Sender, channel};
 use std::convert::TryInto;
 use std::cmp::{max, min};
 
@@ -308,6 +308,30 @@ impl ServoChain {
             }
         });
         mutex_servo_chain
+    }
+    pub fn start_get_data_thread(servo_chain: Arc<Mutex<ServoChain>>, channel: Sender<serde_json::Value>) {
+        let mut motor_servos = vec![];
+        let cloned_servo_chain = servo_chain.clone();
+        let unlocked_servo_chain = cloned_servo_chain.lock().unwrap();
+        for servo in unlocked_servo_chain.servos.iter() {
+            if servo.get_type() == ServoType::MOTOR {
+                motor_servos.push(servo.get_module_position() as usize);
+            }
+        }
+        std::thread::spawn(move || {
+            loop {
+                std::thread::sleep(Duration::from_millis(50));
+                let cloned_servo_chain = servo_chain.clone();
+                let unlocked_servo_chain = cloned_servo_chain.lock().unwrap();
+                let positions: Vec<_> = motor_servos.iter().map(|i| { 
+                    unlocked_servo_chain.servos[*i].get_pos()
+                }).collect();
+                channel.send(serde_json::json!({
+                    "pin": unlocked_servo_chain.pin_number,
+                    "positions": positions
+                }));
+            }
+        });
     }
     fn new_servo_chain(gpio: Gpio, pin_number: u8, servo_types: Vec<ServoType>) -> Self {
         let mut servos: Vec<Box<dyn Servo + Send>> = vec![];
