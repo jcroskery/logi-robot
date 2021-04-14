@@ -3,7 +3,7 @@ use std::time::Duration;
 
 use std::sync::mpsc::channel;
 
-const BITDELAY: u64 = 417000;
+const BITDELAY: u64 = 417;
 
 fn send_byte(pin: &mut OutputPin, byte: u8) {
     let sleeper = spin_sleep::SpinSleeper::default();
@@ -36,6 +36,7 @@ pub fn send_bytes(gpio: Gpio, pin_number: u8, bytes: &[u8], module: u8) {
     for i in 0..4 {
         send_byte(&mut pin, bytes[i]);
     }
+    println!("{}", calculate_checksum(bytes, module));
     send_byte(&mut pin, calculate_checksum(bytes, module));
 }
 
