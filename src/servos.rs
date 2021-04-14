@@ -31,6 +31,7 @@ fn calculate_checksum(bytes: &[u8], module: u8) -> u8 {
 
 pub fn send_bytes(gpio: Gpio, pin_number: u8, bytes: &[u8], module: u8) {
     let mut pin = gpio.get(pin_number).unwrap().into_output();
+    println!("Test");
     send_byte(&mut pin, 0xff);
     for i in 0..4 {
         send_byte(&mut pin, bytes[i]);
