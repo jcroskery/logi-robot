@@ -148,7 +148,7 @@ struct Led {
 impl Led {
     fn update_colour_bit_1(&mut self) -> bool {
         let mut bytes = self.get_bytes();
-        bytes[self.get_module_position() as usize] = self.colour.2 >> 3 + self.colour.1;
+        bytes[self.get_module_position() as usize] = (self.colour.2 >> 3) + self.colour.1;
         self.set_bytes(bytes.clone());
         self.try_send_and_receive(Some(0x02), None)
     }
@@ -253,8 +253,7 @@ impl Servo for Motor {
 
     fn update_colour(&mut self) -> bool {
         let mut bytes = self.get_bytes();
-        let colour_bits = self.colour.2 << 2 + self.colour.1 << 1 + self.colour.0;
-        println!("Colour bits: {}", colour_bits);
+        let colour_bits = (self.colour.2 << 2) + (self.colour.1 << 1) + self.colour.0;
         bytes[self.get_module_position() as usize] = 0xf0 | colour_bits;
         self.set_bytes(bytes.clone());
         self.try_send_and_receive(None, Some(0x00))
