@@ -110,6 +110,7 @@ trait Servo {
     }
     fn send_wakeup(&mut self) -> bool {
         let mut bytes = self.get_bytes();
+        println!("{}", bytes);
         for i in self.get_module_position()..4 {
             bytes[i as usize] = 0xfe;
         }
