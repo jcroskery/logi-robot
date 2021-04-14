@@ -90,7 +90,9 @@ trait Servo {
     fn get_type(&self) -> ServoType;
     fn send_and_receive(&mut self, bytes: &[u8]) -> u8 {
         send_bytes(self.get_gpio(), self.get_pin_number(), bytes, self.get_module_position());
-        return receive_byte(self.get_gpio(), self.get_pin_number());
+        let received_byte = receive_byte(self.get_gpio(), self.get_pin_number());
+        println!("Received byte {} from module {} on pin {} in response to {:?}.", received_byte, self.get_module_position(), self.get_pin_number(), bytes);
+        return received_byte;
     }
     fn init(&mut self) -> bool {
         let bytes = &mut [0xfe; 4];
@@ -104,6 +106,7 @@ trait Servo {
                 return true;
             }
         }
+        println!("Initialization of module {} on pin {} failed", self.get_module_position(), self.get_pin_number());
         false
     }
 }
