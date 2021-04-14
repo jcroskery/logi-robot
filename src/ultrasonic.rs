@@ -1,4 +1,5 @@
 use std::time::Duration;
+
 use rppal::gpio::{OutputPin, InputPin, Gpio, Trigger, Level};
 
 use std::sync::mpsc::{Sender, channel};
