@@ -3,7 +3,7 @@ use std::time::Duration;
 
 use std::sync::mpsc::channel;
 
-const BITDELAY: u64 = 417;
+const BITDELAY: u64 = 417000;
 
 fn send_byte(pin: &mut OutputPin, byte: u8) {
     let sleeper = spin_sleep::SpinSleeper::default();
