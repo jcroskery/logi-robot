@@ -2,6 +2,7 @@ use rppal::gpio::{Gpio, Mode};
 use rppal::pwm::{Pwm, Channel, Polarity};
 
 use std::sync::mpsc::channel;
+use std::sync::Arc;
 use std::time::Duration;
 
 mod ultrasonic;
@@ -18,6 +19,7 @@ const ULTRASONICPIN: u8 = 10;
 const INFRAREDPIN: u8 = 11;
 
 fn main() {
+    let mut timer = Arc::new(howlong::HighResolutionTimer::new());
     let gpio = Gpio::new().unwrap();
     //let mut direction_pins: Vec<_> = DIRECTIONPINS.iter().map(|pin_number: &u8| { gpio.get(*pin_number).unwrap().into_output()}).collect();
     /*
@@ -47,7 +49,7 @@ fn main() {
     
     ultrasonic::init_ultrasonic_pins(gpio.clone(), sender.clone());
 
-    gyro::init_gyro(sender.clone());
+    gyro::init_gyro(sender.clone(), timer.clone());
 
     loop {
         println!("JSON: {}", receiver.recv().unwrap());
