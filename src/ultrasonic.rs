@@ -26,6 +26,11 @@ fn ultrasonic (mut trigger_pin: OutputPin, mut echo_pin: InputPin) -> f32 {
     let mut timer = howlong::HighResolutionTimer::new();
     timer.stop();
     let (sender, receiver) = channel();
+    let timeout_sender = sender.clone();
+    std::thread::spawn(move || {
+        std::thread::sleep(Duration::from_millis(50));
+        timeout_sender.send(300.0);
+    });
     echo_pin.set_async_interrupt(Trigger::Both, move |level| {
         if level == Level::High {
             timer.start();
@@ -33,5 +38,10 @@ fn ultrasonic (mut trigger_pin: OutputPin, mut echo_pin: InputPin) -> f32 {
             sender.send(timer.elapsed().subsec_nanos() as f32 / 1000.0 * 0.017).unwrap();
         }
     }).unwrap();
-    return receiver.recv().unwrap();
+    let message = receiver.recv().unwrap();
+    if message > 300.0 { 
+        300.0 
+    } else {
+        message
+    }
 }
