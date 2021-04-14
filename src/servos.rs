@@ -46,6 +46,7 @@ pub fn receive_byte(gpio: Gpio, pin_number: u8) -> u8 {
     let mut timer = howlong::HighResolutionTimer::new();
     timer.stop();
     let (sender, receiver) = channel();
+    /*
     pin.set_async_interrupt(Trigger::Both, move |level| {
         println!("Received message");
         if level == Level::High {
@@ -54,6 +55,7 @@ pub fn receive_byte(gpio: Gpio, pin_number: u8) -> u8 {
             sender.send(false).unwrap();
         }
     }).unwrap();
+    */
     for i in 0..8 {
         println!("iter {}", i);
         if receiver.recv().unwrap() {
