@@ -32,6 +32,10 @@ fn main() {
     //println!("{}", servos::receive_byte(gpio.clone(), LEDPIN));
     let infrared_chain = servos::ServoChain::new(gpio, INFRAREDPIN, 
         vec![servos::ServoType::MOTOR, servos::ServoType::MOTOR]);
+    let ultrasonic_chain = servos::ServoChain::new(gpio, ULTRASONICPIN, 
+        vec![servos::ServoType::MOTOR, servos::ServoType::MOTOR]);
+    let led_chain = servos::ServoChain::new(gpio, LEDPIN, 
+        vec![servos::ServoType::LED]);
     
     //let ultrasonic_gpio = gpio.clone();
     //ultrasonic::init_ultrasonic_pins(gpio);
