@@ -42,7 +42,7 @@ fn main() {
     ultrasonic_chain.update();
     led_chain.set_colour((7, 0, 0), 0);
     led_chain.update();
-    
+    println!("LIM reading: {}", infrared_chain.get_pos(0).unwrap());
     //let ultrasonic_gpio = gpio.clone();
     //ultrasonic::init_ultrasonic_pins(gpio);
     /*

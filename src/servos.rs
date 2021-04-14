@@ -267,6 +267,7 @@ impl Servo for Motor {
     fn get_pin_number(&self) -> u8 { self.pin_number }
     fn get_module_position(&self) -> u8 { self.module_position }
     fn get_bytes(&self) -> Vec<u8> { self.bytes.lock().unwrap().clone() }
+    fn get_pos(&self) -> Option<i32> { Some(self.motor_position) }
 
     fn set_lim(&mut self, lim: bool) {
         self.lim = lim;
@@ -282,13 +283,6 @@ impl Servo for Motor {
         if self.lim == false {
             self.motor_position = motor_position;
         }
-    }
-
-    fn get_pos(&self) -> Option<i32> {
-        if self.lim == true {
-            //Todo: Update lim reading
-        }
-        Some(self.motor_position)
     }
 
     fn update(&mut self) -> bool {
@@ -352,6 +346,9 @@ impl ServoChain {
     }
     pub fn set_pos(&mut self, pos: i32, module_position: usize) {
         self.servos[module_position].set_pos(pos);
+    }
+    pub fn get_pos(&mut self, module_position: usize) -> Option<i32> {
+        self.servos[module_position].get_pos()
     }
     pub fn update(&mut self) {
         loop {
