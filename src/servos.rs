@@ -145,6 +145,22 @@ struct Led {
     bytes: Arc<Mutex<Vec<u8>>>
 }
 
+impl Led {
+    fn update_colour_bit_1(&mut self) -> bool {
+        let mut bytes = self.get_bytes();
+        bytes[self.get_module_position() as usize] = self.colour.2 >> 3 + self.colour.1;
+        self.set_bytes(bytes.clone());
+        self.try_send_and_receive(Some(0x02), None)
+    }
+
+    fn update_colour_bit_2(&mut self) -> bool {
+        let mut bytes = self.get_bytes();
+        bytes[self.get_module_position() as usize] = 0x40 | self.colour.0;
+        self.set_bytes(bytes.clone());
+        self.try_send_and_receive(Some(0x02), None)
+    }
+}
+
 impl Servo for Led {
     fn new(gpio: Gpio, pin_number: u8, module_position: u8, bytes: Arc<Mutex<Vec<u8>>>) -> Self {
         Led {
@@ -173,7 +189,7 @@ impl Servo for Led {
     fn get_bytes(&self) -> Vec<u8> { self.bytes.lock().unwrap().clone() }
 
     fn update_colour(&mut self) -> bool {
-        false
+        self.update_colour_bit_1() && self.update_colour_bit_2()
     }
 }
 
@@ -236,7 +252,11 @@ impl Servo for Motor {
     }
 
     fn update_colour(&mut self) -> bool {
-        false
+        let mut bytes = self.get_bytes();
+        let colour_bits = self.colour.2 << 2 + self.colour.1 << 1 + self.colour.0;
+        bytes[self.get_module_position() as usize] = 0xf0 | colour_bits;
+        self.set_bytes(bytes.clone());
+        self.try_send_and_receive(None, Some(0x00))
     }
 }
 
