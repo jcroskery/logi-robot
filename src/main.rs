@@ -17,19 +17,21 @@ const INFRAREDPIN: u8 = 11;
 
 fn main() {
     let gpio = Gpio::new().unwrap();
-    let mut direction_pins: Vec<_> = DIRECTIONPINS.iter().map(|pin_number: &u8| { gpio.get(*pin_number).unwrap().into_output()}).collect();
+    //let mut direction_pins: Vec<_> = DIRECTIONPINS.iter().map(|pin_number: &u8| { gpio.get(*pin_number).unwrap().into_output()}).collect();
+    /*
     let mut pwm = [Pwm::with_frequency(Channel::Pwm0,100.0, 0.0,
             Polarity::Normal, true).unwrap(), 
             Pwm::with_frequency(Channel::Pwm1,100.0, 0.0,
             Polarity::Normal, true).unwrap()];
+    */
     //let mut servo_pins = [gpio.get(LEDPIN).unwrap().into_io(Mode::Output), 
     //    gpio.get(ULTRASONICPIN).unwrap().into_io(Mode::Output), 
     //    gpio.get(INFRAREDPIN).unwrap().into_io(Mode::Output)];
     //servos::send_bytes(gpio.clone(), LEDPIN, &[254, 0, 0, 0], 0);
     //println!("{}", servos::receive_byte(gpio.clone(), LEDPIN));
     
-    let ultrasonic_gpio = gpio.clone();
-    ultrasonic::init_ultrasonic_pins(ultrasonic_gpio);
+    //let ultrasonic_gpio = gpio.clone();
+    ultrasonic::init_ultrasonic_pins(gpio);
     /*
 
     let infrared_gpio = gpio.clone();
