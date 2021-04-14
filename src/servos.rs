@@ -53,7 +53,6 @@ pub fn receive_byte(gpio: Gpio, pin_number: u8) -> u8 {
             pin_sender.send(false).unwrap();
         }
     });
-    println!("Receiving byte on pin {}.", pin_number);
     std::thread::spawn(move || {
         std::thread::sleep(Duration::from_millis(50));
         timeout_sender.send(false);
@@ -116,7 +115,7 @@ trait Servo {
                 return true;
             }
         }
-        println!("Initialization of module {} on pin {} failed", self.get_module_position(), self.get_pin_number());
+        println!("Initialization of module {} on pin {} failed.", self.get_module_position(), self.get_pin_number());
         false
     }
 }
