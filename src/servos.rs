@@ -218,7 +218,9 @@ impl Servo for Motor {
     }
 
     fn set_bytes(&mut self, bytes: Vec<u8>) {
+        println!("Setting current bytes {:?} to new bytes {:?}.", self.bytes, bytes);
         self.bytes = bytes;
+        println!("Bytes are now {:?}.", self.bytes);
     }
 
     fn set_pos(&mut self, motor_position: i32) {
