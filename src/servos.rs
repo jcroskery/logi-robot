@@ -213,7 +213,11 @@ impl Motor {
     }
 
     fn update_pos(&mut self) -> bool {
-        true
+        let mut bytes = self.get_bytes();
+        let position_byte = ((self.motor_position + 90) as f64 / 180.0 * 208.0) as u8 + 0x18;
+        bytes[self.get_module_position() as usize] = position_byte;
+        self.set_bytes(bytes.clone());
+        self.try_send_and_receive(None, Some(0x00))
     }
 }
 
