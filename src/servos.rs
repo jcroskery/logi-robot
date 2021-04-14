@@ -102,9 +102,9 @@ trait Servo {
     fn send_and_receive(&mut self, bytes: Vec<u8>) -> u8 {
         std::thread::sleep(Duration::from_millis(10));
         send_bytes(self.get_gpio(), self.get_pin_number(), bytes.clone(), self.get_module_position());
-        println!("Sent bytes {:?} to module {} on pin {}.", bytes, self.get_module_position(), self.get_pin_number());
+        //println!("Sent bytes {:?} to module {} on pin {}.", bytes, self.get_module_position(), self.get_pin_number());
         let received_byte = receive_byte(self.get_gpio(), self.get_pin_number());
-        println!("Received byte {} from module {} on pin {} in response to {:?}.", received_byte, self.get_module_position(), self.get_pin_number(), bytes);
+        //println!("Received byte {} from module {} on pin {} in response to {:?}.", received_byte, self.get_module_position(), self.get_pin_number(), bytes);
         return received_byte;
     }
     fn init(&mut self) -> bool {
@@ -113,7 +113,7 @@ trait Servo {
     fn try_send_and_receive(&mut self, desired_value: Option<u8>, undesired_value: Option<u8>) -> Option<u8> {
         let bytes = self.get_bytes();
         for _ in 0..5 {
-            println!("Sending {:?} message for module {} on pin {}.", bytes, self.get_module_position(), self.get_pin_number());
+            //println!("Sending {:?} message for module {} on pin {}.", bytes, self.get_module_position(), self.get_pin_number());
             let byte = self.send_and_receive(bytes.clone());
             if desired_value.unwrap_or(!byte) == byte || undesired_value.unwrap_or(byte) != byte { 
                 return Some(byte); 
@@ -274,9 +274,9 @@ impl Servo for Motor {
     }
 
     fn set_bytes(&mut self, bytes: Vec<u8>) {
-        println!("Setting current bytes {:?} to new bytes {:?}.", self.bytes, bytes);
+        //println!("Setting current bytes {:?} to new bytes {:?}.", self.bytes, bytes);
         *self.bytes.lock().unwrap() = bytes;
-        println!("Bytes are now {:?}.", self.bytes);
+        //println!("Bytes are now {:?}.", self.bytes);
     }
 
     fn set_pos(&mut self, motor_position: i32) {
@@ -364,7 +364,7 @@ impl ServoChain {
         loop {
             if self.try_init() { break; }
         }
-        println!("Successfully initialized servo chain on pin {}.", self.pin_number);
+        //println!("Successfully initialized servo chain on pin {}.", self.pin_number);
     }
     fn try_update(&mut self) -> bool {
         for servo in &mut self.servos {
@@ -394,6 +394,6 @@ impl ServoChain {
                 self.init();
             }
         }
-        println!("Successfully updated servo chain on pin {}.", self.pin_number);
+        //println!("Successfully updated servo chain on pin {}.", self.pin_number);
     }
 }
