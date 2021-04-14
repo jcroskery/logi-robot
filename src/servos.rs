@@ -22,7 +22,7 @@ fn send_byte(pin: &mut OutputPin, byte: u8) {
     sleeper.sleep(Duration::from_micros(BITDELAY * 2));
 }
 
-fn calculate_checksum(bytes: &[u8], module: u8) -> u8 {
+fn calculate_checksum(bytes: Vec<u8>, module: u8) -> u8 {
     let mut sum: u16 = bytes.iter().map(|u8byte| { *u8byte as u16 }).sum();
     sum += sum >> 8;
     sum += sum << 4;
@@ -30,7 +30,7 @@ fn calculate_checksum(bytes: &[u8], module: u8) -> u8 {
     return (sum as u8) + module;
 }
 
-pub fn send_bytes(gpio: Gpio, pin_number: u8, bytes: &[u8], module: u8) {
+pub fn send_bytes(gpio: Gpio, pin_number: u8, bytes: Vec<u8>, module: u8) {
     let mut pin = gpio.get(pin_number).unwrap().into_output();
     send_byte(&mut pin, 0xff);
     for i in 0..4 {
@@ -85,18 +85,21 @@ pub enum ServoType {
 
 trait Servo {
     fn new(gpio: Gpio, pin_number: u8, module_position: u8) -> Self where Self: Sized;
+    fn get_bytes(&self) -> Vec<u8>;
+    fn set_bytes(&mut self, bytes: Vec<u8>);
     fn get_gpio(&self) -> Gpio;
     fn get_pin_number(&self) -> u8;
     fn get_module_position(&self) -> u8;
     fn set_colour(&mut self, colour: (u8, u8, u8));
+    fn update_colour(&mut self) -> bool;
     fn get_colour(&self) -> (u8, u8, u8);
     fn set_lim(&mut self, lim: bool) {}
     fn set_pos(&mut self, motor_position: i32) {}
     fn get_pos(&self) -> Option<i32> { None }
     fn get_type(&self) -> ServoType;
-    fn send_and_receive(&mut self, bytes: &[u8]) -> u8 {
+    fn send_and_receive(&mut self, bytes: Vec<u8>) -> u8 {
         std::thread::sleep(Duration::from_millis(10));
-        send_bytes(self.get_gpio(), self.get_pin_number(), bytes, self.get_module_position());
+        send_bytes(self.get_gpio(), self.get_pin_number(), bytes.clone(), self.get_module_position());
         println!("Sent bytes {:?} to module {} on pin {}.", bytes, self.get_module_position(), self.get_pin_number());
         let received_byte = receive_byte(self.get_gpio(), self.get_pin_number());
         println!("Received byte {} from module {} on pin {} in response to {:?}.", received_byte, self.get_module_position(), self.get_pin_number(), bytes);
@@ -106,27 +109,27 @@ trait Servo {
         self.send_wakeup() && self.send_type_check()
     }
     fn send_wakeup(&mut self) -> bool {
-        let bytes = &mut [0xfe; 4];
-        for i in 0..self.get_module_position() {
-            bytes[i as usize] = 0xfc;
+        let mut bytes = self.get_bytes();
+        for i in self.get_module_position()..4 {
+            bytes[i as usize] = 0xfe;
         }
+        self.set_bytes(bytes.clone());
         for _ in 0..5 {
             println!("Sending initialization message for module {} on pin {}.", self.get_module_position(), self.get_pin_number());
-            if self.send_and_receive(bytes) == 0xfe {
+            if self.send_and_receive(bytes.clone()) == 0xfe {
                 return true;
             }
         }
         false
     }
     fn send_type_check(&mut self) -> bool {
-        let bytes = &mut [0xfe; 4];
-        for i in 0..(self.get_module_position() + 1) {
-            bytes[i as usize] = 0xfc;
-        }
+        let mut bytes = self.get_bytes();
+        bytes[self.get_module_position() as usize] = 0xfc;
+        self.set_bytes(bytes.clone());
         for _ in 0..5 {
             println!("Sending type message for module {} on pin {}.", self.get_module_position(), self.get_pin_number());
             let correct_type_response = if self.get_type() == ServoType::MOTOR { 0x01 } else { 0x02 };
-            if self.send_and_receive(bytes) == correct_type_response {
+            if self.send_and_receive(bytes.clone()) == correct_type_response {
                 return true;
             }
         }
@@ -138,7 +141,8 @@ struct Led {
     gpio: Gpio,
     pin_number: u8,
     module_position: u8,
-    colour: (u8, u8, u8)
+    colour: (u8, u8, u8),
+    bytes: Vec<u8>
 }
 
 impl Servo for Led {
@@ -147,7 +151,8 @@ impl Servo for Led {
             gpio,
             pin_number,
             module_position,
-            colour: (0, 0, 7)
+            colour: (0, 0, 7),
+            bytes: vec![0, 0, 0, 0]
         }
     }
 
@@ -157,10 +162,19 @@ impl Servo for Led {
         self.colour = colour;
     }
 
+    fn set_bytes(&mut self, bytes: Vec<u8>) {
+        self.bytes = bytes;
+    }
+
     fn get_colour(&self) -> (u8, u8, u8) { self.colour }
     fn get_gpio(&self) -> Gpio { self.gpio.clone() }
     fn get_pin_number(&self) -> u8 { self.pin_number }
     fn get_module_position(&self) -> u8 { self.module_position }
+    fn get_bytes(&self) -> Vec<u8> { self.bytes.clone() }
+
+    fn update_colour(&mut self) -> bool {
+        false
+    }
 }
 
 struct Motor {
@@ -169,7 +183,8 @@ struct Motor {
     module_position: u8,
     colour: (u8, u8, u8),
     motor_position: i32,
-    lim: bool
+    lim: bool,
+    bytes: Vec<u8>
 }
 
 impl Servo for Motor {
@@ -180,7 +195,8 @@ impl Servo for Motor {
             module_position,
             colour: (0, 0, 7),
             motor_position: 0,
-            lim: false
+            lim: false,
+            bytes: vec![0, 0, 0, 0]
         }
     }
     
@@ -194,9 +210,14 @@ impl Servo for Motor {
     fn get_gpio(&self) -> Gpio { self.gpio.clone() }
     fn get_pin_number(&self) -> u8 { self.pin_number }
     fn get_module_position(&self) -> u8 { self.module_position }
+    fn get_bytes(&self) -> Vec<u8> { self.bytes.clone() }
 
     fn set_lim(&mut self, lim: bool) {
         self.lim = lim;
+    }
+
+    fn set_bytes(&mut self, bytes: Vec<u8>) {
+        self.bytes = bytes;
     }
 
     fn set_pos(&mut self, motor_position: i32) {
@@ -210,6 +231,10 @@ impl Servo for Motor {
             //Todo: Update lim reading
         }
         Some(self.motor_position)
+    }
+
+    fn update_colour(&mut self) -> bool {
+        false
     }
 }
 
