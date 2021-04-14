@@ -41,6 +41,12 @@ fn main() {
     infrared_chain.lock().unwrap().set_lim(true, 0);
     servos::ServoChain::start_get_data_thread(infrared_chain, sender.clone());
     servos::ServoChain::start_get_data_thread(ultrasonic_chain, sender.clone());
+
+
+    infrared::init_infrared_pin(gpio.clone(), sender.clone());
+    
+
+
     loop {
         println!("JSON: {}", receiver.recv().unwrap());
     }

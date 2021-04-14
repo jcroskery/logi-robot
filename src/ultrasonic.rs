@@ -1,9 +1,7 @@
 use std::time::Duration;
 use rppal::gpio::{OutputPin, InputPin, Gpio, Trigger, Level};
 
-use std::sync::mpsc::channel;
-
-//use std::sync::{Arc, Mutex};
+use std::sync::mpsc::{Sender, channel};
 
 const TRIGGERPIN: u8 = 14;
 const ECHOPIN: u8 = 15;
