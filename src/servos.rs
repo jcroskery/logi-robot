@@ -4,6 +4,7 @@ use std::time::Duration;
 use std::sync::{Mutex, Arc};
 use std::sync::mpsc::channel;
 use std::convert::TryInto;
+use std::cmp::{max, min};
 
 const BITDELAY: u64 = 417;
 
@@ -109,16 +110,16 @@ trait Servo {
     fn init(&mut self) -> bool {
         self.send_wakeup() && self.send_type_check()
     }
-    fn try_send_and_receive(&mut self, desired_value: Option<u8>, undesired_value: Option<u8>) -> bool {
+    fn try_send_and_receive(&mut self, desired_value: Option<u8>, undesired_value: Option<u8>) -> Option<u8> {
         let bytes = self.get_bytes();
         for _ in 0..5 {
             println!("Sending {:?} message for module {} on pin {}.", bytes, self.get_module_position(), self.get_pin_number());
             let byte = self.send_and_receive(bytes.clone());
             if desired_value.unwrap_or(!byte) == byte || undesired_value.unwrap_or(byte) != byte { 
-                return true; 
+                return Some(byte); 
             }
         }
-        false
+        None
     }
     fn send_wakeup(&mut self) -> bool {
         let mut bytes = self.get_bytes();
@@ -126,14 +127,14 @@ trait Servo {
             bytes[i as usize] = 0xfe;
         }
         self.set_bytes(bytes.clone());
-        self.try_send_and_receive(Some(0xfe), None)
+        self.try_send_and_receive(Some(0xfe), None).is_some()
     }
     fn send_type_check(&mut self) -> bool {
         let mut bytes = self.get_bytes();
         bytes[self.get_module_position() as usize] = 0xfc;
         self.set_bytes(bytes.clone());
         let correct_type_response = if self.get_type() == ServoType::MOTOR { 0x01 } else { 0x02 };
-        self.try_send_and_receive(Some(correct_type_response), None)
+        self.try_send_and_receive(Some(correct_type_response), None).is_some()
     }
 }
 
@@ -150,14 +151,14 @@ impl Led {
         let mut bytes = self.get_bytes();
         bytes[self.get_module_position() as usize] = (self.colour.1 >> 3) + self.colour.0;
         self.set_bytes(bytes.clone());
-        self.try_send_and_receive(Some(0x02), None)
+        self.try_send_and_receive(Some(0x02), None).is_some()
     }
 
     fn update_colour_bit_2(&mut self) -> bool {
         let mut bytes = self.get_bytes();
         bytes[self.get_module_position() as usize] = 0x40 | self.colour.2;
         self.set_bytes(bytes.clone());
-        self.try_send_and_receive(Some(0x02), None)
+        self.try_send_and_receive(Some(0x02), None).is_some()
     }
 }
 
@@ -209,15 +210,36 @@ impl Motor {
         let colour_bits = (self.colour.2 << 2) + (self.colour.1 << 1) + self.colour.0;
         bytes[self.get_module_position() as usize] = 0xf0 | colour_bits;
         self.set_bytes(bytes.clone());
-        self.try_send_and_receive(None, Some(0x00))
+        self.try_send_and_receive(None, Some(0x00)).is_some()
     }
 
     fn update_pos(&mut self) -> bool {
-        let mut bytes = self.get_bytes();
-        let position_byte = ((self.motor_position + 90) as f64 / 180.0 * 208.0) as u8 + 0x18;
-        bytes[self.get_module_position() as usize] = position_byte;
-        self.set_bytes(bytes.clone());
-        self.try_send_and_receive(None, Some(0x00))
+        if !self.lim {
+            let mut bytes = self.get_bytes();
+            let position_byte = ((self.motor_position + 90) as f64 / 180.0 * 208.0) as u8 + 0x18;
+            bytes[self.get_module_position() as usize] = position_byte;
+            self.set_bytes(bytes.clone());
+            self.try_send_and_receive(None, Some(0x00)).is_some()
+        } else {
+            true
+        }
+    }
+    fn update_lim(&mut self) -> bool {
+        if self.lim {
+            let mut bytes = self.get_bytes();
+            bytes[self.get_module_position() as usize] = 0xfa;
+            self.set_bytes(bytes.clone());
+            if let Some(byte) = self.try_send_and_receive(None, Some(0x00)) {
+                let motor_position = (((byte - 0x18) as f64) / 208.0 * 180.0 - 90.0) as i32;
+                let clamped_motor_position = max(min(motor_position, 90), -90);
+                self.motor_position = clamped_motor_position;
+                true
+            } else {
+                false
+            }
+        } else {
+            true
+        }
     }
 }
 
@@ -270,7 +292,7 @@ impl Servo for Motor {
     }
 
     fn update(&mut self) -> bool {
-        self.update_colour() && self.update_pos()
+        self.update_colour() && self.update_pos() && self.update_lim()
     }
 }
 
