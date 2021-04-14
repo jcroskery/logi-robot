@@ -95,7 +95,7 @@ trait Servo {
     fn get_pos(&self) -> Option<i32> { None }
     fn get_type(&self) -> ServoType;
     fn send_and_receive(&mut self, bytes: &[u8]) -> u8 {
-        std::thread::sleep(Duration::from_millis(10));
+        //std::thread::sleep(Duration::from_millis(5));
         send_bytes(self.get_gpio(), self.get_pin_number(), bytes, self.get_module_position());
         println!("Sent bytes {:?} to module {} on pin {}.", bytes, self.get_module_position(), self.get_pin_number());
         let received_byte = receive_byte(self.get_gpio(), self.get_pin_number());
@@ -103,20 +103,33 @@ trait Servo {
         return received_byte;
     }
     fn init(&mut self) -> bool {
+        self.send_wakeup() && self.send_type_check()
+    }
+    fn send_wakeup(&mut self) -> bool {
         let bytes = &mut [0xfe; 4];
         for i in 0..self.get_module_position() {
             bytes[i as usize] = 0xfc;
         }
-        println!("Sending initialization message for module {} on pin {}.", self.get_module_position(), self.get_pin_number());
-        if self.send_and_receive(bytes) == 0xfe {
-            bytes[self.get_module_position() as usize] = 0xfc;
+        for _ in 0..5 {
+            println!("Sending initialization message for module {} on pin {}.", self.get_module_position(), self.get_pin_number());
+            if self.send_and_receive(bytes) == 0xfe {
+                return true;
+            }
+        }
+        false
+    }
+    fn send_type_check(&mut self) -> bool {
+        let bytes = &mut [0xfe; 4];
+        for i in 0..(self.get_module_position() + 1) {
+            bytes[i as usize] = 0xfc;
+        }
+        for _ in 0..5 {
             println!("Sending type message for module {} on pin {}.", self.get_module_position(), self.get_pin_number());
             let correct_type_response = if self.get_type() == ServoType::MOTOR { 0x01 } else { 0x02 };
             if self.send_and_receive(bytes) == correct_type_response {
                 return true;
             }
         }
-        println!("Initialization of module {} on pin {} failed.", self.get_module_position(), self.get_pin_number());
         false
     }
 }
