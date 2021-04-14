@@ -31,12 +31,10 @@ fn calculate_checksum(bytes: &[u8], module: u8) -> u8 {
 
 pub fn send_bytes(gpio: Gpio, pin_number: u8, bytes: &[u8], module: u8) {
     let mut pin = gpio.get(pin_number).unwrap().into_output();
-    println!("Test");
     send_byte(&mut pin, 0xff);
     for i in 0..4 {
         send_byte(&mut pin, bytes[i]);
     }
-    println!("{}", calculate_checksum(bytes, module));
     send_byte(&mut pin, calculate_checksum(bytes, module));
 }
 
@@ -46,7 +44,6 @@ pub fn receive_byte(gpio: Gpio, pin_number: u8) -> u8 {
     let mut timer = howlong::HighResolutionTimer::new();
     timer.stop();
     let (sender, receiver) = channel();
-    /*
     pin.set_async_interrupt(Trigger::Both, move |level| {
         println!("Received message");
         if level == Level::High {
@@ -55,7 +52,7 @@ pub fn receive_byte(gpio: Gpio, pin_number: u8) -> u8 {
             sender.send(false).unwrap();
         }
     }).unwrap();
-    */
+    println!("{:?}", pin);
     for i in 0..8 {
         println!("iter {}", i);
         if receiver.recv().unwrap() {
