@@ -99,8 +99,10 @@ trait Servo {
         for i in 0..self.get_module_position() {
             bytes[i as usize] = 0xfc;
         }
+        println!("Sending initialization message for module {} on pin {}.", self.get_module_position(), self.get_pin_number());
         if self.send_and_receive(bytes) == 0xfe {
             bytes[self.get_module_position() as usize] = 0xfc;
+            println!("Sending type message for module {} on pin {}.", self.get_module_position(), self.get_pin_number());
             let correct_type_response = if self.get_type() == ServoType::MOTOR { 0x02 } else { 0x01 };
             if self.send_and_receive(bytes) == correct_type_response {
                 return true;
