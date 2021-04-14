@@ -36,13 +36,10 @@ fn main() {
         vec![servos::ServoType::MOTOR, servos::ServoType::MOTOR]);
     let mut led_chain = servos::ServoChain::new(gpio.clone(), LEDPIN, 
         vec![servos::ServoType::LED]);
-    infrared_chain.set_lim(true, 0);
-    infrared_chain.set_pos(90, 1);
-    infrared_chain.update();
-    ultrasonic_chain.update();
-    led_chain.set_colour((7, 0, 0), 0);
-    led_chain.update();
-    println!("LIM reading: {}", infrared_chain.get_pos(0).unwrap());
+    infrared_chain.lock().unwrap().set_lim(true, 0);
+    infrared_chain.lock().unwrap().set_pos(90, 1);
+    led_chain.lock().unwrap().set_colour((7, 0, 0), 0);
+    println!("LIM reading: {}", infrared_chain.lock().unwrap().get_pos(0).unwrap());
     //let ultrasonic_gpio = gpio.clone();
     //ultrasonic::init_ultrasonic_pins(gpio);
     /*

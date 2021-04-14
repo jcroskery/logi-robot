@@ -293,12 +293,24 @@ impl Servo for Motor {
 pub struct ServoChain {
     gpio: Gpio,
     pin_number: u8,
-    servos: Vec<Box<dyn Servo>>
+    servos: Vec<Box<dyn Servo + Send>>
 }
 
 impl ServoChain {
-    pub fn new(gpio: Gpio, pin_number: u8, servo_types: Vec<ServoType>) -> Self {
-        let mut servos: Vec<Box<dyn Servo>> = vec![];
+    pub fn new(gpio: Gpio, pin_number: u8, servo_types: Vec<ServoType>) -> Arc<Mutex<ServoChain>> {
+        let servo_chain = ServoChain::new_servo_chain(gpio, pin_number, servo_types);
+        let mutex_servo_chain = Arc::new(Mutex::new(servo_chain));
+        let update_servo_chain = mutex_servo_chain.clone();
+        std::thread::spawn(move || {
+            loop {
+                std::thread::sleep(Duration::from_millis(50));
+                update_servo_chain.lock().unwrap().update();
+            }
+        });
+        mutex_servo_chain
+    }
+    fn new_servo_chain(gpio: Gpio, pin_number: u8, servo_types: Vec<ServoType>) -> Self {
+        let mut servos: Vec<Box<dyn Servo + Send>> = vec![];
         let bytes = Arc::new(Mutex::new(vec![0, 0, 0, 0]));
         for i in 0..servo_types.len() {
             let module_position = i.try_into().unwrap();
@@ -324,7 +336,7 @@ impl ServoChain {
         }
         true
     }
-    pub fn init(&mut self) {
+    fn init(&mut self) {
         loop {
             if self.try_init() { break; }
         }
@@ -350,7 +362,7 @@ impl ServoChain {
     pub fn get_pos(&mut self, module_position: usize) -> Option<i32> {
         self.servos[module_position].get_pos()
     }
-    pub fn update(&mut self) {
+    fn update(&mut self) {
         loop {
             if self.try_update() { 
                 break; 
@@ -361,4 +373,3 @@ impl ServoChain {
         println!("Successfully updated servo chain on pin {}.", self.pin_number);
     }
 }
-
