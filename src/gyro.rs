@@ -14,7 +14,7 @@ pub fn init_gyro(channel: Sender<serde_json::Value>) {
             std::thread::sleep(Duration::from_millis(10));
             let (gyro_readings, time_elapsed) = gyro.read();
             channel.send(serde_json::json!({
-                "gyroscope": "hi",
+                "gyroscope": gyro_readings,
                 "d_time": "hi"
             })).unwrap();
         }
