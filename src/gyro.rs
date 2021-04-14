@@ -11,6 +11,7 @@ pub fn init_gyro(channel: Sender<serde_json::Value>) {
     std::thread::spawn(move || {
         let mut gyro = Gyro::new();
         loop {
+            println!("HIHIHI");
             std::thread::sleep(Duration::from_millis(10));
             let (gyro_readings, time_elapsed) = gyro.read();
             channel.send(serde_json::json!({
