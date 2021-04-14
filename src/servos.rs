@@ -1,6 +1,7 @@
 use rppal::gpio::{OutputPin, InputPin, Gpio, Trigger, Level, Mode};
-use std::time::Duration;
 
+use std::time::Duration;
+use std::sync::{Mutex, Arc};
 use std::sync::mpsc::channel;
 use std::convert::TryInto;
 
@@ -84,7 +85,7 @@ pub enum ServoType {
 }
 
 trait Servo {
-    fn new(gpio: Gpio, pin_number: u8, module_position: u8) -> Self where Self: Sized;
+    fn new(gpio: Gpio, pin_number: u8, module_position: u8, bytes: Arc<Mutex<Vec<u8>>>) -> Self where Self: Sized;
     fn get_bytes(&self) -> Vec<u8>;
     fn set_bytes(&mut self, bytes: Vec<u8>);
     fn get_gpio(&self) -> Gpio;
@@ -143,17 +144,17 @@ struct Led {
     pin_number: u8,
     module_position: u8,
     colour: (u8, u8, u8),
-    bytes: Vec<u8>
+    bytes: Arc<Mutex<Vec<u8>>>
 }
 
 impl Servo for Led {
-    fn new(gpio: Gpio, pin_number: u8, module_position: u8) -> Self {
+    fn new(gpio: Gpio, pin_number: u8, module_position: u8, bytes: Arc<Mutex<Vec<u8>>>) -> Self {
         Led {
             gpio,
             pin_number,
             module_position,
             colour: (0, 0, 7),
-            bytes: vec![0, 0, 0, 0]
+            bytes
         }
     }
 
@@ -164,14 +165,14 @@ impl Servo for Led {
     }
 
     fn set_bytes(&mut self, bytes: Vec<u8>) {
-        self.bytes = bytes;
+        *self.bytes.lock().unwrap() = bytes;
     }
 
     fn get_colour(&self) -> (u8, u8, u8) { self.colour }
     fn get_gpio(&self) -> Gpio { self.gpio.clone() }
     fn get_pin_number(&self) -> u8 { self.pin_number }
     fn get_module_position(&self) -> u8 { self.module_position }
-    fn get_bytes(&self) -> Vec<u8> { self.bytes.clone() }
+    fn get_bytes(&self) -> Vec<u8> { self.bytes.lock().unwrap().clone() }
 
     fn update_colour(&mut self) -> bool {
         false
@@ -185,11 +186,11 @@ struct Motor {
     colour: (u8, u8, u8),
     motor_position: i32,
     lim: bool,
-    bytes: Vec<u8>
+    bytes: Arc<Mutex<Vec<u8>>>
 }
 
 impl Servo for Motor {
-    fn new(gpio: Gpio, pin_number: u8, module_position: u8) -> Self {
+    fn new(gpio: Gpio, pin_number: u8, module_position: u8, bytes: Arc<Mutex<Vec<u8>>>) -> Self {
         Motor {
             gpio,
             pin_number,
@@ -197,7 +198,7 @@ impl Servo for Motor {
             colour: (0, 0, 7),
             motor_position: 0,
             lim: false,
-            bytes: vec![0, 0, 0, 0]
+            bytes
         }
     }
     
@@ -211,7 +212,7 @@ impl Servo for Motor {
     fn get_gpio(&self) -> Gpio { self.gpio.clone() }
     fn get_pin_number(&self) -> u8 { self.pin_number }
     fn get_module_position(&self) -> u8 { self.module_position }
-    fn get_bytes(&self) -> Vec<u8> { self.bytes.clone() }
+    fn get_bytes(&self) -> Vec<u8> { self.bytes.lock().unwrap().clone() }
 
     fn set_lim(&mut self, lim: bool) {
         self.lim = lim;
@@ -219,7 +220,7 @@ impl Servo for Motor {
 
     fn set_bytes(&mut self, bytes: Vec<u8>) {
         println!("Setting current bytes {:?} to new bytes {:?}.", self.bytes, bytes);
-        self.bytes = bytes;
+        *self.bytes.lock().unwrap() = bytes;
         println!("Bytes are now {:?}.", self.bytes);
     }
 
@@ -250,12 +251,13 @@ pub struct ServoChain {
 impl ServoChain {
     pub fn new(gpio: Gpio, pin_number: u8, servo_types: Vec<ServoType>) -> Self {
         let mut servos: Vec<Box<dyn Servo>> = vec![];
+        let bytes = Arc::new(Mutex::new(vec![0, 0, 0, 0]));
         for i in 0..servo_types.len() {
             let module_position = i.try_into().unwrap();
             if servo_types[i] == ServoType::LED {
-                servos.push(Box::new(Led::new(gpio.clone(), pin_number, module_position)));
+                servos.push(Box::new(Led::new(gpio.clone(), pin_number, module_position, bytes.clone())));
             } else if servo_types[i] == ServoType::MOTOR {
-                servos.push(Box::new(Motor::new(gpio.clone(), pin_number, module_position)));
+                servos.push(Box::new(Motor::new(gpio.clone(), pin_number, module_position, bytes.clone())));
             }
         }
         let mut servo_chain = ServoChain {
