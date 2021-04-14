@@ -90,6 +90,7 @@ trait Servo {
     fn get_type(&self) -> ServoType;
     fn send_and_receive(&mut self, bytes: &[u8]) -> u8 {
         send_bytes(self.get_gpio(), self.get_pin_number(), bytes, self.get_module_position());
+        println!("Sent bytes {:?} to module {} on pin {}.", bytes, self.get_module_position(), self.get_pin_number());
         let received_byte = receive_byte(self.get_gpio(), self.get_pin_number());
         println!("Received byte {} from module {} on pin {} in response to {:?}.", received_byte, self.get_module_position(), self.get_pin_number(), bytes);
         return received_byte;
