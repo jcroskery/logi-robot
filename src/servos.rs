@@ -231,7 +231,7 @@ impl Motor {
             self.set_bytes(bytes.clone());
             if let Some(byte) = self.try_send_and_receive(None, Some(0x00)) {
                 let motor_position = (((byte - 0x18) as f64) / 208.0 * 180.0 - 90.0) as i32;
-                let clamped_motor_position = max(min(motor_position, -90), 90);
+                let clamped_motor_position = max(min(motor_position, 90), -90);
                 self.motor_position = clamped_motor_position;
                 true
             } else {
