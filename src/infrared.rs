@@ -17,7 +17,6 @@ pub fn init_infrared(gpio: Gpio, channel: Sender<serde_json::Value>,
                 "infrared": infrared(infrared_pin),
                 "time": timer.elapsed().as_nanos() as u64
             }));
-            println!("ALERT");
         }
     });
 }
@@ -25,6 +24,7 @@ pub fn init_infrared(gpio: Gpio, channel: Sender<serde_json::Value>,
 fn infrared (mut infrared_pin: InputPin) -> bool {
     let (sender, receiver) = channel();
     infrared_pin.set_async_interrupt(Trigger::Both, move |level| {
+        println!("ALERT");
         sender.send(level == Level::High).unwrap();
     }).unwrap();
     return receiver.recv().unwrap_or(infrared(infrared_pin));
