@@ -309,7 +309,8 @@ impl ServoChain {
         });
         mutex_servo_chain
     }
-    pub fn start_get_data_thread(servo_chain: Arc<Mutex<ServoChain>>, channel: Sender<serde_json::Value>) {
+    pub fn start_get_data_thread(servo_chain: Arc<Mutex<ServoChain>>, channel: Sender<serde_json::Value>,
+        timer: Arc<howlong::HighResolutionTimer>) {
         let mut motor_servos = vec![];
         let cloned_servo_chain = servo_chain.clone();
         let unlocked_servo_chain = cloned_servo_chain.lock().unwrap();
@@ -328,7 +329,8 @@ impl ServoChain {
                 }).collect();
                 channel.send(serde_json::json!({
                     "pin": unlocked_servo_chain.pin_number,
-                    "positions": positions
+                    "positions": positions,
+                    "time": timer.elapsed().as_nanos() as u64
                 }));
             }
         });
