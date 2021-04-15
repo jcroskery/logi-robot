@@ -17,6 +17,7 @@ pub fn init_infrared(gpio: Gpio, channel: Sender<serde_json::Value>,
                 "infrared": infrared(infrared_pin),
                 "time": timer.elapsed().as_nanos() as u64
             }));
+            println!("ALERT");
         }
     });
 }
