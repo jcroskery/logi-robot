@@ -45,9 +45,9 @@ fn main() {
     servos::ServoChain::start_get_data_thread(ultrasonic_chain, sender.clone());
 
 
-    infrared::init_infrared_pin(gpio.clone(), sender.clone());
+    infrared::init_infrared_pin(gpio.clone(), sender.clone(), timer.clone());
     
-    ultrasonic::init_ultrasonic_pins(gpio.clone(), sender.clone());
+    ultrasonic::init_ultrasonic_pins(gpio.clone(), sender.clone(), timer.clone());
 
     gyro::init_gyro(sender.clone(), timer.clone());
 

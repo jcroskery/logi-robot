@@ -5,13 +5,15 @@ use std::time::Duration;
 
 const INFRAREDPIN: u8 = 5;
 
-pub fn init_infrared_pin(gpio: Gpio, channel: Sender<serde_json::Value>) {
+pub fn init_infrared_pin(gpio: Gpio, channel: Sender<serde_json::Value>, 
+    timer: Arc<howlong::HighResolutionTimer>) {
     std::thread::spawn(move || {
         loop {
             std::thread::sleep(Duration::from_millis(50));
             let infrared_pin = gpio.clone().get(INFRAREDPIN).unwrap().into_input();
             channel.send(serde_json::json!({
-                "infrared": infrared(infrared_pin)
+                "infrared": infrared(infrared_pin),
+                "time": timer.elapsed().as_nanos() as u64
             }));
         }
     });
