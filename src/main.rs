@@ -21,13 +21,11 @@ const INFRAREDPIN: u8 = 11;
 fn main() {
     let mut timer = Arc::new(howlong::HighResolutionTimer::new());
     let gpio = Gpio::new().unwrap();
-    //let mut direction_pins: Vec<_> = DIRECTIONPINS.iter().map(|pin_number: &u8| { gpio.get(*pin_number).unwrap().into_output()}).collect();
-    /*
-    let mut pwm = [Pwm::with_frequency(Channel::Pwm0,100.0, 0.0,
+    let mut direction_pins: Vec<_> = DIRECTIONPINS.iter().map(|pin_number: &u8| { gpio.get(*pin_number).unwrap().into_output()}).collect();
+    let mut pwm = vec![Pwm::with_frequency(Channel::Pwm0,100.0, 0.0,
             Polarity::Normal, true).unwrap(), 
             Pwm::with_frequency(Channel::Pwm1,100.0, 0.0,
             Polarity::Normal, true).unwrap()];
-    */
     //let mut servo_pins = [gpio.get(LEDPIN).unwrap().into_io(Mode::Output), 
     //    gpio.get(ULTRASONICPIN).unwrap().into_io(Mode::Output), 
     //    gpio.get(INFRAREDPIN).unwrap().into_io(Mode::Output)];
@@ -39,6 +37,7 @@ fn main() {
     let (to_infrared_sender, to_infrared_receiver) = channel();
     let (to_ultrasonic_sender, to_ultrasonic_receiver) = channel();
     let (to_led_sender, to_led_receiver) = channel();
+    let (to_motor_sender, to_motor_receiver) = channel();
 
     let mut infrared_chain = servos::ServoChain::new(gpio.clone(), INFRAREDPIN, 
         vec![servos::ServoType::MOTOR, servos::ServoType::MOTOR]);
@@ -67,6 +66,9 @@ fn main() {
     servos::ServoChain::start_receive_data_thread(ultrasonic_chain, to_ultrasonic_receiver);
     servos::ServoChain::start_receive_data_thread(led_chain, to_led_receiver);
     to_infrared_sender.send((servos::ServoTrait::LIM(true), 0));
+
+    motor::init_motor(pwm, direction_pins, to_client_message_sender.clone(), to_motor_receiver, timer.clone());
+    to_motor_sender.send(vec![100, 100]).unwrap();
 
     loop {
         println!("JSON: {}", to_client_message_receiver.recv().unwrap());
