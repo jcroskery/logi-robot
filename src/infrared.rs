@@ -25,5 +25,5 @@ fn infrared (mut infrared_pin: InputPin) -> bool {
     infrared_pin.set_async_interrupt(Trigger::Both, move |level| {
         sender.send(level == Level::High).unwrap();
     }).unwrap();
-    return receiver.recv().unwrap();
+    return receiver.recv().unwrap_or(infrared(infrared_pin));
 }

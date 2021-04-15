@@ -10,11 +10,12 @@ pub fn init_motor(mut pwm: Vec<Pwm>, mut direction_pins: Vec<OutputPin>, sender:
     timer: Arc<howlong::HighResolutionTimer>) {
     std::thread::spawn(move || {
         loop {
-            let speeds = receiver.recv().unwrap();
-            sender.send(serde_json::json!({
-                "time": timer.elapsed().as_nanos() as u64
-            })).unwrap();
-            drive(&mut pwm, &mut direction_pins, speeds);
+            if let Ok(speeds) = receiver.recv() {
+                sender.send(serde_json::json!({
+                    "time": timer.elapsed().as_nanos() as u64
+                })).unwrap();
+                drive(&mut pwm, &mut direction_pins, speeds);
+            }
         }
     });
 }

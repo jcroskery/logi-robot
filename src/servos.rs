@@ -61,12 +61,12 @@ pub fn receive_byte(gpio: Gpio, pin_number: u8) -> u8 {
         timeout_sender.send(false);
     });
     for i in 0..8 {
-        if receiver.recv().unwrap() {
+        if receiver.recv().unwrap_or(false) {
             timer.start();
         } else {
             return 0;
         }
-        if !receiver.recv().unwrap() {
+        if !receiver.recv().unwrap_or(true) {
             if(timer.elapsed().as_micros() > 400) {
                 received_byte |= 1 << i;
             }
@@ -344,8 +344,9 @@ impl ServoChain {
     pub fn start_receive_data_thread(servo_chain: Arc<Mutex<ServoChain>>, receiver: Receiver<(ServoTrait, usize)>) {
         std::thread::spawn(move || {
             loop {
-                let (servo_trait, module_position) = receiver.recv().unwrap();
-                ServoChain::set_servo_trait(&mut servo_chain.lock().unwrap(), module_position, servo_trait);
+                if let Ok((servo_trait, module_position)) = receiver.recv() {
+                    ServoChain::set_servo_trait(&mut servo_chain.lock().unwrap(), module_position, servo_trait);
+                }
             }
         });
     }
