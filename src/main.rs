@@ -167,7 +167,7 @@ fn main() {
     std::thread::spawn(move || {
         loop {
             if let Ok(received_message) = to_client_message_receiver.recv() {
-                //println!("JSON: {}", received_message);
+                println!("JSON: {}", received_message);
                 let mut unlocked_client_senders = to_client_senders_clone.lock().unwrap();
                 let mut senders_to_remove = vec![];
                 let mut i = 0;
