@@ -153,15 +153,15 @@ fn main() {
 
     stepper::init_stepper(gpio.clone(), to_client_message_sender.clone(), 
         to_stepper_receiver, timer.clone());
-    to_stepper_sender.send(90);
+    //to_stepper_sender.send(90);
 
     servos::ServoChain::start_receive_data_thread(infrared_chain, to_infrared_receiver);
     servos::ServoChain::start_receive_data_thread(ultrasonic_chain, to_ultrasonic_receiver);
     servos::ServoChain::start_receive_data_thread(led_chain, to_led_receiver);
-    to_infrared_sender.send((servos::ServoTrait::LIM(true), 0));
+    //to_infrared_sender.send((servos::ServoTrait::LIM(true), 0));
 
     motor::init_motor(pwm, direction_pins, to_client_message_sender.clone(), to_motor_receiver, timer.clone());
-    to_motor_sender.send(vec![100, 100]).unwrap();
+    //to_motor_sender.send(vec![100, 100]).unwrap();
     
     let to_client_senders_clone = to_client_senders.clone();
     std::thread::spawn(move || {
