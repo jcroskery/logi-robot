@@ -1,19 +1,32 @@
 use rppal::gpio::{OutputPin, Gpio};
+
 use std::time::Duration;
+use std::sync::Arc;
+use std::sync::mpsc::{Sender, Receiver};
 
 const PINS: &[u8] = &[4, 17, 27, 22];
 const STEPS: &[usize] = &[1, 0, 2, 1, 3, 2, 0, 3];
 
-pub async fn init_stepper_pins(gpio: Gpio) {
-    loop {
-        let mut pins = [gpio.get(PINS[0]).unwrap().into_output(), gpio.get(PINS[1]).unwrap().into_output(), gpio.get(PINS[2]).unwrap().into_output(), gpio.get(PINS[3]).unwrap().into_output()];
-        println!("{}\n", stepper(&mut pins, 90).await);
-        println!("{}\n", stepper(&mut pins, -90).await);
-        break;
-    }
+pub fn init_stepper(gpio: Gpio, sender: Sender<serde_json::Value>, receiver: Receiver<i32>, 
+    timer: Arc<howlong::HighResolutionTimer>) {
+    std::thread::spawn(move || {
+        loop {
+            let mut pins = [gpio.get(PINS[0]).unwrap().into_output(), gpio.get(PINS[1]).unwrap().into_output(), gpio.get(PINS[2]).unwrap().into_output(), gpio.get(PINS[3]).unwrap().into_output()];
+            let dist = receiver.recv().unwrap();
+            sender.send(serde_json::json!({
+                "start": true,
+                "time": timer.elapsed().as_nanos() as u64
+            })).unwrap();
+            stepper(&mut pins, dist);
+            sender.send(serde_json::json!({
+                "start": false,
+                "time": timer.elapsed().as_nanos() as u64
+            })).unwrap();
+        }
+    });
 }
 
-async fn stepper(pins: &mut [OutputPin], dist: i32) -> i32 {
+fn stepper(pins: &mut [OutputPin], dist: i32)  {
     pins[0].set_high();
     for i in 1..4 {
         pins[i].set_low();
@@ -30,5 +43,4 @@ async fn stepper(pins: &mut [OutputPin], dist: i32) -> i32 {
         }
     }
     pins[0].set_low();
-    return dist;
 }

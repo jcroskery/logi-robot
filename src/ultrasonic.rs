@@ -7,7 +7,7 @@ use std::time::Duration;
 const TRIGGERPIN: u8 = 14;
 const ECHOPIN: u8 = 15;
 
-pub fn init_ultrasonic_pins(gpio: Gpio, channel: Sender<serde_json::Value>, 
+pub fn init_ultrasonic(gpio: Gpio, channel: Sender<serde_json::Value>, 
     timer: Arc<howlong::HighResolutionTimer>) {
     std::thread::spawn(move || {
         loop {

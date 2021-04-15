@@ -33,26 +33,37 @@ fn main() {
     //    gpio.get(INFRAREDPIN).unwrap().into_io(Mode::Output)];
     //servos::send_bytes(gpio.clone(), LEDPIN, &[254, 0, 0, 0], 0);
     //println!("{}", servos::receive_byte(gpio.clone(), LEDPIN));
+    let (to_client_message_sender, to_client_message_receiver) = channel();
+
+    let (to_stepper_sender, to_stepper_receiver) = channel();
+
     let mut infrared_chain = servos::ServoChain::new(gpio.clone(), INFRAREDPIN, 
         vec![servos::ServoType::MOTOR, servos::ServoType::MOTOR]);
     let mut ultrasonic_chain = servos::ServoChain::new(gpio.clone(), ULTRASONICPIN, 
         vec![servos::ServoType::MOTOR, servos::ServoType::MOTOR]);
     let mut led_chain = servos::ServoChain::new(gpio.clone(), LEDPIN, 
         vec![servos::ServoType::LED]);
-    let (sender, receiver) = channel();
     infrared_chain.lock().unwrap().set_lim(true, 0);
-    servos::ServoChain::start_get_data_thread(infrared_chain, sender.clone(), timer.clone());
-    servos::ServoChain::start_get_data_thread(ultrasonic_chain, sender.clone(), timer.clone());
+    /* 
+    servos::ServoChain::start_get_data_thread(infrared_chain, to_client_message_sender.clone(), timer.clone());
+    servos::ServoChain::start_get_data_thread(ultrasonic_chain, to_client_message_sender.clone(), timer.clone());
 
 
-    infrared::init_infrared_pin(gpio.clone(), sender.clone(), timer.clone());
+    infrared::init_infrared(gpio.clone(), to_client_message_sender.clone(), timer.clone());
     
-    ultrasonic::init_ultrasonic_pins(gpio.clone(), sender.clone(), timer.clone());
+    ultrasonic::init_ultrasonic(gpio.clone(), to_client_message_sender.clone(), timer.clone());
 
-    gyro::init_gyro(sender.clone(), timer.clone());
+    gyro::init_gyro(to_client_message_sender.clone(), timer.clone());
+    */
+    
+
+    stepper::init_stepper(gpio.clone(), to_client_message_sender.clone(), 
+        to_stepper_receiver, timer.clone());
+
+    to_stepper_sender.send(90);
 
     loop {
-        println!("JSON: {}", receiver.recv().unwrap());
+        println!("JSON: {}", to_client_message_receiver.recv().unwrap());
     }
     /* 
     infrared_chain.lock().unwrap().set_lim(true, 0);

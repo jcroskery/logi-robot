@@ -6,7 +6,7 @@ use std::sync::Arc;
 
 const INFRAREDPIN: u8 = 5;
 
-pub fn init_infrared_pin(gpio: Gpio, channel: Sender<serde_json::Value>, 
+pub fn init_infrared(gpio: Gpio, channel: Sender<serde_json::Value>, 
     timer: Arc<howlong::HighResolutionTimer>) {
     std::thread::spawn(move || {
         loop {
