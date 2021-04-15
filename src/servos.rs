@@ -430,6 +430,7 @@ impl ServoChain {
         self.servos[module_position].set_pos(pos);
     }
     pub fn set_servo_trait(&mut self, module_position: usize, servo_trait: ServoTrait) {
+        self.update = true;
         match servo_trait {
             ServoTrait::LIM(lim) => self.set_lim(lim, module_position),
             ServoTrait::COLOUR(colour) => self.set_colour(colour, module_position),

@@ -12,19 +12,21 @@ pub fn init_infrared(gpio: Gpio, channel: Sender<serde_json::Value>,
         loop {
             std::thread::sleep(Duration::from_millis(50));
             let infrared_pin = gpio.clone().get(INFRAREDPIN).unwrap().into_input();
-            channel.send(serde_json::json!({
-                "response": "infrared",
-                "infrared": infrared(infrared_pin),
-                "time": timer.elapsed().as_nanos() as u64
-            }));
+            if let Ok(infrared) = infrared(infrared_pin) {
+                channel.send(serde_json::json!({
+                    "response": "infrared",
+                    "infrared": infrared,
+                    "time": timer.elapsed().as_nanos() as u64
+                }));
+            }
         }
     });
 }
 
-fn infrared (mut infrared_pin: InputPin) -> bool {
+fn infrared (mut infrared_pin: InputPin) -> Result<bool, ()> {
     let (sender, receiver) = channel();
     infrared_pin.set_async_interrupt(Trigger::Both, move |level| {
-        sender.send(level == Level::High).unwrap();
+        sender.send(level == Level::High);
     }).unwrap();
-    return receiver.recv().unwrap();
+    return receiver.recv().ok().ok_or(());
 }
