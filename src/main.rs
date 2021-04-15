@@ -72,14 +72,14 @@ fn main() {
     motor::init_motor(pwm, direction_pins, to_client_message_sender.clone(), to_motor_receiver, timer.clone());
     //to_motor_sender.send(vec![100, 100]).unwrap();
     
-    std::thread::spawn(move || {
+    //std::thread::spawn(move || {
         loop {
             let received_message = to_client_message_receiver.recv().unwrap();
             println!("JSON: {}", received_message);
             to_client_senders = to_client_senders.into_iter()
                 .filter(|sender| { if let Err(_) = sender.send(received_message.clone()) { false } else { true }}).collect();
         }
-    });
+    //});
     std::thread::sleep(Duration::from_secs(10));
     /* 
     infrared_chain.lock().unwrap().set_lim(true, 0);
