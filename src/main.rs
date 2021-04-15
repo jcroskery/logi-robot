@@ -1,7 +1,7 @@
 use rppal::gpio::{Gpio, Mode};
 use rppal::pwm::{Pwm, Channel, Polarity};
 
-use std::sync::mpsc::channel;
+use std::sync::mpsc::{Sender, channel};
 use std::sync::Arc;
 use std::time::Duration;
 
@@ -39,6 +39,8 @@ fn main() {
     let (to_led_sender, to_led_receiver) = channel();
     let (to_motor_sender, to_motor_receiver) = channel();
 
+    let mut to_client_senders: Vec<Sender<serde_json::Value>> = vec![];
+
     let mut infrared_chain = servos::ServoChain::new(gpio.clone(), INFRAREDPIN, 
         vec![servos::ServoType::MOTOR, servos::ServoType::MOTOR]);
     let mut ultrasonic_chain = servos::ServoChain::new(gpio.clone(), ULTRASONICPIN, 
@@ -68,11 +70,16 @@ fn main() {
     to_infrared_sender.send((servos::ServoTrait::LIM(true), 0));
 
     motor::init_motor(pwm, direction_pins, to_client_message_sender.clone(), to_motor_receiver, timer.clone());
-    to_motor_sender.send(vec![100, 100]).unwrap();
-
-    loop {
-        println!("JSON: {}", to_client_message_receiver.recv().unwrap());
-    }
+    //to_motor_sender.send(vec![100, 100]).unwrap();
+    
+    std::thread::spawn(move || {
+        loop {
+            let received_message = to_client_message_receiver.recv().unwrap();
+            println!("JSON: {}", received_message);
+            to_client_senders = to_client_senders.into_iter()
+                .filter(|sender| { if let Err(_) = sender.send(received_message.clone()) { false } else { true }}).collect();
+        }
+    });
     /* 
     infrared_chain.lock().unwrap().set_lim(true, 0);
     infrared_chain.lock().unwrap().set_pos(90, 1);
