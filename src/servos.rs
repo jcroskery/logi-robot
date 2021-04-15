@@ -327,6 +327,7 @@ pub struct ServoChain {
     pin_number: u8,
     servos: Vec<Box<dyn Servo + Send>>,
     update: bool,
+    lim: bool,
 }
 
 impl ServoChain {
@@ -393,7 +394,8 @@ impl ServoChain {
             gpio,
             pin_number,
             servos,
-            update: true
+            update: true,
+            lim: false,
         };
         servo_chain.init();
         servo_chain
@@ -422,6 +424,7 @@ impl ServoChain {
     }
     fn set_lim(&mut self, lim: bool, module_position: usize) {
         self.servos[module_position].set_lim(lim);
+        self.lim = lim;
     }
     fn set_colour(&mut self, colour: (u8, u8, u8), module_position: usize) {
         self.servos[module_position].set_colour(colour);
@@ -441,7 +444,7 @@ impl ServoChain {
         self.servos[module_position].get_pos()
     }
     fn update(&mut self) {
-        if self.update {
+        if self.update || self.lim {
             self.update = false;
             loop {
                 if self.try_update() { 
