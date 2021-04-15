@@ -74,10 +74,11 @@ fn main() {
     
     std::thread::spawn(move || {
         loop {
-            let received_message = to_client_message_receiver.recv().unwrap();
-            println!("JSON: {}", received_message);
-            to_client_senders = to_client_senders.into_iter()
-                .filter(|sender| { if let Err(_) = sender.send(received_message.clone()) { false } else { true }}).collect();
+            if let Some(received_message) = to_client_message_receiver.recv() {
+                println!("JSON: {}", received_message);
+                to_client_senders = to_client_senders.into_iter()
+                    .filter(|sender| { if let Err(_) = sender.send(received_message.clone()) { false } else { true }}).collect();
+            }
         }
     });
     std::thread::sleep(Duration::from_secs(10));
