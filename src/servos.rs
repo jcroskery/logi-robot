@@ -296,6 +296,32 @@ pub enum ServoTrait {
     POS(i32)
 }
 
+impl std::convert::TryFrom<serde_json::map::Map<String, serde_json::Value>> for ServoTrait {
+    type Error = ();
+
+    fn try_from(map: serde_json::map::Map<String, serde_json::Value>) -> Result<Self, ()> {
+        let data = map.get("data").ok_or(())?;
+        match map.get("function").ok_or(())? {
+            serde_json::Value::String(string) => {
+                match string.as_str() {
+                    "lim" => Ok(Self::LIM(data.as_bool().ok_or(())?)),
+                    "colour" => {
+                        let colour_vec = data.as_array().ok_or(())?;
+                        Ok(Self::COLOUR((colour_vec[0].as_u64().ok_or(())? as u8, 
+                            colour_vec[1].as_u64().ok_or(())? as u8, 
+                            colour_vec[2].as_u64().ok_or(())? as u8)))
+                    },
+                    "pos" => Ok(Self::POS(data.as_i64().ok_or(())? as i32)),
+                    _ => {Err(())}
+                }
+            }
+            _ => {
+                Err(())
+            }
+        }
+    }
+}
+
 pub struct ServoChain {
     gpio: Gpio,
     pin_number: u8,

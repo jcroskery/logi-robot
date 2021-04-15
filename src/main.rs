@@ -1,9 +1,12 @@
 use rppal::gpio::{Gpio, Mode};
 use rppal::pwm::{Pwm, Channel, Polarity};
+use serde_json::Value;
+use servos::ServoTrait;
 
 use std::sync::mpsc::{Sender, channel};
 use std::sync::Arc;
 use std::time::Duration;
+use std::convert::TryFrom;
 
 mod ultrasonic;
 mod infrared;
@@ -17,6 +20,76 @@ const DIRECTIONPINS: &[u8] = &[20, 21, 13, 26];
 const LEDPIN: u8 = 9;
 const ULTRASONICPIN: u8 = 10;
 const INFRAREDPIN: u8 = 11;
+
+struct Server {
+    ws_sender: ws::Sender,
+    to_infrared_sender: Sender<(servos::ServoTrait, usize)>,
+    to_ultrasonic_sender: Sender<(servos::ServoTrait, usize)>,
+    to_led_sender: Sender<(servos::ServoTrait, usize)>,
+    to_stepper_sender: Sender<i32>,
+    to_motor_sender: Sender<Vec<i32>>
+}
+
+impl Server {
+    fn respond_to_message(&mut self, msg: ws::Message) -> Result<(), ()> {
+        let msg_text = msg.into_text().ok().ok_or(())?;
+        let json_message = serde_json::from_str(&msg_text).ok().ok_or(())?;
+        if let Value::Object(map) = json_message {
+            let request = map.get("request").ok_or(())?;
+            match request {
+                Value::String(request_string) => {
+                    match request_string.as_str() {
+                        "stepper" => {
+
+                        },
+                        "motor" => {
+                            
+                        },
+                        "servo" => {
+                            let chain_name = map.get("chain").ok_or(())?;
+                            let sender = match chain_name {
+                                Value::String(string) => {
+                                    match string.as_str() {
+                                        "infrared" => &self.to_infrared_sender,
+                                        "led" => &self.to_led_sender,
+                                        "ultrasonic" => &self.to_ultrasonic_sender,
+                                        _ => return Err(())
+                                    }
+                                },
+                                _ => { return Err(()) }
+                            };
+                            let module_position = map.get("module").ok_or(())?.as_u64().ok_or(())? as usize;
+                            sender.send((servos::ServoTrait::try_from(map)?, module_position));
+                        }
+                        _ => {
+                            return Err(());
+                        }
+                    }
+                }
+                _ => {
+                    return Err(())
+                }
+            }
+        }
+        Err(())
+    }
+}
+
+impl ws::Handler for Server {
+    fn on_open(&mut self, _: ws::Handshake) -> ws::Result<()> {
+        std::thread::spawn(|| {
+
+        });
+        Ok(())
+    }
+
+    fn on_message(&mut self, msg: ws::Message) -> ws::Result<()> {
+        match self.respond_to_message(msg) {
+            Ok(_) => Ok(()),
+            Err(()) => Err(ws::Error::new(ws::ErrorKind::Internal, ""))
+        }
+    }
+}
 
 fn main() {
     let mut timer = Arc::new(howlong::HighResolutionTimer::new());
@@ -81,7 +154,19 @@ fn main() {
             }
         }
     });
-    std::thread::sleep(Duration::from_secs(10));
+
+    if let Err(error) = ws::listen("127.0.0.1:6455", |ws_sender| {
+        Server {
+            ws_sender,
+            to_infrared_sender: to_infrared_sender.clone(),
+            to_ultrasonic_sender: to_ultrasonic_sender.clone(),
+            to_led_sender: to_led_sender.clone(),
+            to_stepper_sender: to_stepper_sender.clone(),
+            to_motor_sender: to_motor_sender.clone()
+        }
+    }) {
+        println!("WebSocket error: {:?}", error);
+    }
     /* 
     infrared_chain.lock().unwrap().set_lim(true, 0);
     infrared_chain.lock().unwrap().set_pos(90, 1);
