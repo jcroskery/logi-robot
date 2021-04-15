@@ -2,6 +2,7 @@ use rppal::gpio::{InputPin, Gpio, Level, Trigger};
 
 use std::sync::mpsc::{Sender, channel};
 use std::time::Duration;
+use std::sync::Arc;
 
 const INFRAREDPIN: u8 = 5;
 
