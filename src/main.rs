@@ -76,12 +76,11 @@ fn main() {
         loop {
             let received_message = to_client_message_receiver.recv().unwrap();
             println!("JSON: {}", received_message);
-            /* 
             to_client_senders = to_client_senders.into_iter()
                 .filter(|sender| { if let Err(_) = sender.send(received_message.clone()) { false } else { true }}).collect();
-            */
         }
     });
+    std::thread::sleep(Duration::from_secs(10));
     /* 
     infrared_chain.lock().unwrap().set_lim(true, 0);
     infrared_chain.lock().unwrap().set_pos(90, 1);
