@@ -3,8 +3,8 @@ use rppal::pwm::{Pwm, Channel, Polarity};
 use serde_json::Value;
 use servos::ServoTrait;
 
-use std::sync::mpsc::{Sender, channel};
-use std::sync::Arc;
+use std::sync::mpsc::{Sender, Receiver, channel};
+use std::sync::{Arc, Mutex};
 use std::time::Duration;
 use std::convert::TryFrom;
 
@@ -22,7 +22,8 @@ const ULTRASONICPIN: u8 = 10;
 const INFRAREDPIN: u8 = 11;
 
 struct Server {
-    ws_sender: ws::Sender,
+    ws_sender: Arc<Mutex<ws::Sender>>,
+    individual_client_receiver: Arc<Mutex<Receiver<ws::Message>>>,
     to_infrared_sender: Sender<(servos::ServoTrait, usize)>,
     to_ultrasonic_sender: Sender<(servos::ServoTrait, usize)>,
     to_led_sender: Sender<(servos::ServoTrait, usize)>,
@@ -40,10 +41,19 @@ impl Server {
                 Value::String(request_string) => {
                     match request_string.as_str() {
                         "stepper" => {
-
+                            let direction = map.get("direction").ok_or(())?.as_i64().ok_or(())? as i32;
+                            (&self.to_stepper_sender).send(direction).ok().ok_or(())?;
                         },
                         "motor" => {
-                            
+                            let drive = map.get("drive").ok_or(())?.as_array().ok_or(())?;
+                            let converted_drive: Vec<_> = drive.iter().filter_map(|value| {
+                                Some(value.as_i64()? as i32)
+                            }).collect();
+                            if converted_drive.len() == 2 {
+                                (&self.to_motor_sender).send(converted_drive).ok().ok_or(())?;
+                            } else {
+                                return Err(());
+                            }
                         },
                         "servo" => {
                             let chain_name = map.get("chain").ok_or(())?;
@@ -59,26 +69,34 @@ impl Server {
                                 _ => { return Err(()) }
                             };
                             let module_position = map.get("module").ok_or(())?.as_u64().ok_or(())? as usize;
-                            sender.send((servos::ServoTrait::try_from(map)?, module_position));
+                            sender.send((servos::ServoTrait::try_from(map)?, module_position)).ok().ok_or(())?;
                         }
                         _ => {
                             return Err(());
                         }
                     }
+                    Ok(())
                 }
                 _ => {
                     return Err(())
                 }
             }
+        } else {
+            Err(())
         }
-        Err(())
     }
 }
 
 impl ws::Handler for Server {
     fn on_open(&mut self, _: ws::Handshake) -> ws::Result<()> {
-        std::thread::spawn(|| {
-
+        let individual_client_receiver = self.individual_client_receiver.clone();
+        let ws_sender = self.ws_sender.clone();
+        std::thread::spawn(move || {
+            loop {
+                if let Ok(msg) = individual_client_receiver.lock().unwrap().recv() {
+                    ws_sender.lock().unwrap().send(msg).unwrap();
+                }
+            }
         });
         Ok(())
     }
@@ -112,7 +130,7 @@ fn main() {
     let (to_led_sender, to_led_receiver) = channel();
     let (to_motor_sender, to_motor_receiver) = channel();
 
-    let mut to_client_senders: Vec<Sender<serde_json::Value>> = vec![];
+    let mut to_client_senders: Arc<Mutex<Vec<Sender<ws::Message>>>> = Arc::new(Mutex::new(vec![]));
 
     let mut infrared_chain = servos::ServoChain::new(gpio.clone(), INFRAREDPIN, 
         vec![servos::ServoType::MOTOR, servos::ServoType::MOTOR]);
@@ -145,19 +163,35 @@ fn main() {
     motor::init_motor(pwm, direction_pins, to_client_message_sender.clone(), to_motor_receiver, timer.clone());
     to_motor_sender.send(vec![100, 100]).unwrap();
     
+    let to_client_senders_clone = to_client_senders.clone();
     std::thread::spawn(move || {
         loop {
             if let Ok(received_message) = to_client_message_receiver.recv() {
                 println!("JSON: {}", received_message);
-                to_client_senders = to_client_senders.into_iter()
-                    .filter(|sender| { if let Err(_) = sender.send(received_message.clone()) { false } else { true }}).collect();
+                let mut unlocked_client_senders = to_client_senders_clone.lock().unwrap();
+                let mut senders_to_remove = vec![];
+                let mut i = 0;
+                for client in unlocked_client_senders.iter() {
+                    if let Err(_) = client.send(ws::Message::Text(serde_json::to_string(&received_message).unwrap_or(String::new()))) {
+                        senders_to_remove.push(i);
+                    }
+                    i+=1;
+                }
+                i = 0;
+                for sender in senders_to_remove {
+                    unlocked_client_senders.remove(sender - i);
+                    i+=1;
+                }
             }
         }
     });
 
     if let Err(error) = ws::listen("127.0.0.1:6455", |ws_sender| {
+        let (individual_client_sender, individual_client_receiver) = channel();
+        to_client_senders.lock().unwrap().push(individual_client_sender);
         Server {
-            ws_sender,
+            ws_sender: Arc::new(Mutex::new(ws_sender)),
+            individual_client_receiver: Arc::new(Mutex::new(individual_client_receiver)),
             to_infrared_sender: to_infrared_sender.clone(),
             to_ultrasonic_sender: to_ultrasonic_sender.clone(),
             to_led_sender: to_led_sender.clone(),
