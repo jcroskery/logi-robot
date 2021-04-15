@@ -149,7 +149,7 @@ struct Led {
 impl Led {
     fn update_colour_bit_1(&mut self) -> bool {
         let mut bytes = self.get_bytes();
-        bytes[self.get_module_position() as usize] = (self.colour.1 >> 3) + self.colour.0;
+        bytes[self.get_module_position() as usize] = (self.colour.1 << 3) + self.colour.0;
         self.set_bytes(bytes.clone());
         self.try_send_and_receive(Some(0x02), None).is_some()
     }
