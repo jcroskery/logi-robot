@@ -70,7 +70,7 @@ fn main() {
     to_infrared_sender.send((servos::ServoTrait::LIM(true), 0));
 
     motor::init_motor(pwm, direction_pins, to_client_message_sender.clone(), to_motor_receiver, timer.clone());
-    //to_motor_sender.send(vec![100, 100]).unwrap();
+    to_motor_sender.send(vec![100, 100]).unwrap();
     
     std::thread::spawn(move || {
         loop {
