@@ -2,7 +2,7 @@ use rppal::gpio::{OutputPin, InputPin, Gpio, Trigger, Level, Mode};
 
 use std::time::Duration;
 use std::sync::{Mutex, Arc};
-use std::sync::mpsc::{Sender, channel};
+use std::sync::mpsc::{Sender, Receiver, channel};
 use std::convert::TryInto;
 use std::cmp::{max, min};
 
@@ -290,6 +290,12 @@ impl Servo for Motor {
     }
 }
 
+pub enum ServoTrait {
+    LIM(bool),
+    COLOUR((u8, u8, u8)),
+    POS(i32)
+}
+
 pub struct ServoChain {
     gpio: Gpio,
     pin_number: u8,
@@ -335,6 +341,14 @@ impl ServoChain {
             }
         });
     }
+    pub fn start_receive_data_thread(servo_chain: Arc<Mutex<ServoChain>>, receiver: Receiver<(ServoTrait, usize)>) {
+        std::thread::spawn(move || {
+            loop {
+                let (servo_trait, module_position) = receiver.recv().unwrap();
+                ServoChain::set_servo_trait(&mut servo_chain.lock().unwrap(), module_position, servo_trait);
+            }
+        });
+    }
     fn new_servo_chain(gpio: Gpio, pin_number: u8, servo_types: Vec<ServoType>) -> Self {
         let mut servos: Vec<Box<dyn Servo + Send>> = vec![];
         let bytes = Arc::new(Mutex::new(vec![0, 0, 0, 0]));
@@ -376,14 +390,21 @@ impl ServoChain {
         }
         true
     }
-    pub fn set_lim(&mut self, lim: bool, module_position: usize) {
+    fn set_lim(&mut self, lim: bool, module_position: usize) {
         self.servos[module_position].set_lim(lim);
     }
-    pub fn set_colour(&mut self, colour: (u8, u8, u8), module_position: usize) {
+    fn set_colour(&mut self, colour: (u8, u8, u8), module_position: usize) {
         self.servos[module_position].set_colour(colour);
     }
-    pub fn set_pos(&mut self, pos: i32, module_position: usize) {
+    fn set_pos(&mut self, pos: i32, module_position: usize) {
         self.servos[module_position].set_pos(pos);
+    }
+    pub fn set_servo_trait(&mut self, module_position: usize, servo_trait: ServoTrait) {
+        match servo_trait {
+            ServoTrait::LIM(lim) => self.set_lim(lim, module_position),
+            ServoTrait::COLOUR(colour) => self.set_colour(colour, module_position),
+            ServoTrait::POS(pos) => self.set_pos(pos, module_position)
+        }
     }
     pub fn get_pos(&mut self, module_position: usize) -> Option<i32> {
         self.servos[module_position].get_pos()

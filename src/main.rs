@@ -36,6 +36,9 @@ fn main() {
     let (to_client_message_sender, to_client_message_receiver) = channel();
 
     let (to_stepper_sender, to_stepper_receiver) = channel();
+    let (to_infrared_sender, to_infrared_receiver) = channel();
+    let (to_ultrasonic_sender, to_ultrasonic_receiver) = channel();
+    let (to_led_sender, to_led_receiver) = channel();
 
     let mut infrared_chain = servos::ServoChain::new(gpio.clone(), INFRAREDPIN, 
         vec![servos::ServoType::MOTOR, servos::ServoType::MOTOR]);
@@ -43,10 +46,9 @@ fn main() {
         vec![servos::ServoType::MOTOR, servos::ServoType::MOTOR]);
     let mut led_chain = servos::ServoChain::new(gpio.clone(), LEDPIN, 
         vec![servos::ServoType::LED]);
-    infrared_chain.lock().unwrap().set_lim(true, 0);
-    /* 
-    servos::ServoChain::start_get_data_thread(infrared_chain, to_client_message_sender.clone(), timer.clone());
-    servos::ServoChain::start_get_data_thread(ultrasonic_chain, to_client_message_sender.clone(), timer.clone());
+    
+    servos::ServoChain::start_get_data_thread(infrared_chain.clone(), to_client_message_sender.clone(), timer.clone());
+    servos::ServoChain::start_get_data_thread(ultrasonic_chain.clone(), to_client_message_sender.clone(), timer.clone());
 
 
     infrared::init_infrared(gpio.clone(), to_client_message_sender.clone(), timer.clone());
@@ -54,13 +56,17 @@ fn main() {
     ultrasonic::init_ultrasonic(gpio.clone(), to_client_message_sender.clone(), timer.clone());
 
     gyro::init_gyro(to_client_message_sender.clone(), timer.clone());
-    */
+    
     
 
     stepper::init_stepper(gpio.clone(), to_client_message_sender.clone(), 
         to_stepper_receiver, timer.clone());
-
     to_stepper_sender.send(90);
+
+    servos::ServoChain::start_receive_data_thread(infrared_chain, to_infrared_receiver);
+    servos::ServoChain::start_receive_data_thread(ultrasonic_chain, to_ultrasonic_receiver);
+    servos::ServoChain::start_receive_data_thread(led_chain, to_led_receiver);
+    to_infrared_sender.send((servos::ServoTrait::LIM(true), 0));
 
     loop {
         println!("JSON: {}", to_client_message_receiver.recv().unwrap());
