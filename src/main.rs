@@ -186,7 +186,7 @@ fn main() {
         }
     });
 
-    if let Err(error) = ws::listen("127.0.0.1:6455", |ws_sender| {
+    if let Err(error) = ws::listen("0.0.0.0:6455", |ws_sender| {
         let (individual_client_sender, individual_client_receiver) = channel();
         to_client_senders.lock().unwrap().push(individual_client_sender);
         Server {
