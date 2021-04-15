@@ -19,6 +19,7 @@ pub fn init_stepper(gpio: Gpio, sender: Sender<serde_json::Value>, receiver: Rec
                 })).unwrap();
                 stepper(&mut pins, dist);
                 sender.send(serde_json::json!({
+                    "response": "stepper",
                     "start": false,
                     "time": timer.elapsed().as_nanos() as u64
                 })).unwrap();

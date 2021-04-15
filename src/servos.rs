@@ -325,7 +325,8 @@ impl std::convert::TryFrom<serde_json::map::Map<String, serde_json::Value>> for 
 pub struct ServoChain {
     gpio: Gpio,
     pin_number: u8,
-    servos: Vec<Box<dyn Servo + Send>>
+    servos: Vec<Box<dyn Servo + Send>>,
+    update: bool,
 }
 
 impl ServoChain {
@@ -360,6 +361,7 @@ impl ServoChain {
                     unlocked_servo_chain.servos[*i].get_pos()
                 }).collect();
                 channel.send(serde_json::json!({
+                    "response": "servos",
                     "pin": unlocked_servo_chain.pin_number,
                     "positions": positions,
                     "time": timer.elapsed().as_nanos() as u64
@@ -390,7 +392,8 @@ impl ServoChain {
         let mut servo_chain = ServoChain {
             gpio,
             pin_number,
-            servos
+            servos,
+            update: true
         };
         servo_chain.init();
         servo_chain
@@ -437,13 +440,16 @@ impl ServoChain {
         self.servos[module_position].get_pos()
     }
     fn update(&mut self) {
-        loop {
-            if self.try_update() { 
-                break; 
-            } else {
-                self.init();
+        if self.update {
+            self.update = false;
+            loop {
+                if self.try_update() { 
+                    break; 
+                } else {
+                    self.init();
+                }
             }
+            //println!("Successfully updated servo chain on pin {}.", self.pin_number);
         }
-        //println!("Successfully updated servo chain on pin {}.", self.pin_number);
     }
 }

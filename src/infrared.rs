@@ -13,6 +13,7 @@ pub fn init_infrared(gpio: Gpio, channel: Sender<serde_json::Value>,
             std::thread::sleep(Duration::from_millis(50));
             let infrared_pin = gpio.clone().get(INFRAREDPIN).unwrap().into_input();
             channel.send(serde_json::json!({
+                "response": "infrared",
                 "infrared": infrared(infrared_pin),
                 "time": timer.elapsed().as_nanos() as u64
             }));

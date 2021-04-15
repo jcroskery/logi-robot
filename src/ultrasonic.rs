@@ -15,6 +15,7 @@ pub fn init_ultrasonic(gpio: Gpio, channel: Sender<serde_json::Value>,
             let trigger_pin = gpio.get(TRIGGERPIN).unwrap().into_output();
             let echo_pin =  gpio.get(ECHOPIN).unwrap().into_input();
             channel.send(serde_json::json!({
+                "response": "ultrasonic",
                 "ultrasonic": ultrasonic(trigger_pin, echo_pin),
                 "time": timer.elapsed().as_nanos() as u64
             }));

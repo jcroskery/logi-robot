@@ -15,6 +15,7 @@ pub fn init_gyro(channel: Sender<serde_json::Value>, timer: Arc<howlong::HighRes
             std::thread::sleep(Duration::from_millis(20));
             let gyro_readings = gyro.read();
             channel.send(serde_json::json!({
+                "response": "gyroscope",
                 "gyroscope": gyro_readings,
                 "time": timer.elapsed().as_nanos() as u64
             })).unwrap();
