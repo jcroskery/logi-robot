@@ -102,10 +102,11 @@ impl ws::Handler for Server {
     }
 
     fn on_message(&mut self, msg: ws::Message) -> ws::Result<()> {
-        match self.respond_to_message(msg) {
-            Ok(_) => Ok(()),
-            Err(()) => Err(ws::Error::new(ws::ErrorKind::Internal, ""))
+        let message_response = self.respond_to_message(msg);
+        if let Err(_) = message_response {
+            println!("Internal Error");
         }
+        Ok(())
     }
 }
 
