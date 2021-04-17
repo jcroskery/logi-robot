@@ -14,6 +14,7 @@ pub fn init_stepper(gpio: Gpio, sender: Sender<serde_json::Value>, receiver: Rec
             let mut pins = [gpio.get(PINS[0]).unwrap().into_output(), gpio.get(PINS[1]).unwrap().into_output(), gpio.get(PINS[2]).unwrap().into_output(), gpio.get(PINS[3]).unwrap().into_output()];
             if let Ok(dist) = receiver.recv() {
                 sender.send(serde_json::json!({
+                    "response": "stepper",
                     "start": true,
                     "time": timer.elapsed().as_nanos() as u64
                 })).unwrap();
