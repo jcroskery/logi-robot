@@ -14,6 +14,7 @@ mod stepper;
 mod motor;
 mod gyro;
 mod servos;
+mod camera;
 
 const DIRECTIONPINS: &[u8] = &[20, 21, 13, 26];
 
@@ -163,6 +164,8 @@ fn main() {
 
     motor::init_motor(pwm, direction_pins, to_client_message_sender.clone(), to_motor_receiver, timer.clone());
     //to_motor_sender.send(vec![100, 100]).unwrap();
+
+    camera::start_camera(to_client_message_sender.clone(), timer.clone());
     
     let to_client_senders_clone = to_client_senders.clone();
     std::thread::spawn(move || {
