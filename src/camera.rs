@@ -7,10 +7,11 @@ use std::time::Duration;
 
 pub fn start_camera(sender: Sender<serde_json::Value>, timer: Arc<howlong::HighResolutionTimer>) {
     std::thread::spawn(move || {
-        Command::new("camera.sh")
+        let child = Command::new("camera.sh")
             .spawn()
             .expect("Failed to start camera.sh");
         std::thread::sleep(Duration::from_secs(5));
+        println!("{:?}", child.try_wait());
         let mut camera = Camera::new("/dev/video0").unwrap();
 
         camera
