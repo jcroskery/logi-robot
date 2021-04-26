@@ -3,13 +3,14 @@ use rscam::{Camera, Config};
 use std::sync::mpsc::Sender;
 use std::sync::Arc;
 use std::process::Command;
+use std::time::Duration;
 
 pub fn start_camera(sender: Sender<serde_json::Value>, timer: Arc<howlong::HighResolutionTimer>) {
     std::thread::spawn(move || {
         Command::new("camera.sh")
             .spawn()
             .expect("Failed to start camera.sh");
-        
+        std::thread::sleep(Duration::from_secs(5));
         let mut camera = Camera::new("/dev/video0").unwrap();
 
         camera
