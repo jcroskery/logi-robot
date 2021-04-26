@@ -1,5 +1,7 @@
 use rscam::{Camera, Config};
 
+use std::sync::Arc;
+
 fn start_camera(sender: Sender<serde_json::Value>, timer: Arc<howlong::HighResolutionTimer>) {
     std::thread::spawn(move || {
         let mut camera = Camera::new("/dev/video0").unwrap();
