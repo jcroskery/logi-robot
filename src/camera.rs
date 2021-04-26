@@ -5,6 +5,7 @@ use std::sync::mpsc::Sender;
 
 pub fn start_camera(sender: Sender<serde_json::Value>, timer: Arc<howlong::HighResolutionTimer>) {
     std::thread::spawn(move || {
+        println!("HI");
         let mut camera = Camera::new("/dev/video0").unwrap();
 
         camera
