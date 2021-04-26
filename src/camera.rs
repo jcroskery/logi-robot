@@ -20,7 +20,7 @@ fn start_camera(sender: Sender<serde_json::Value>, timer: Arc<howlong::HighResol
                 .send(serde_json::json!({
                     "response": "camera",
                     "time": timer.elapsed().as_nanos() as u64,
-                    "frame": base64::encode(&camera.capture().unwrap())
+                    "frame": base64::encode(*camera.capture().unwrap())
                 }))
                 .unwrap();
         }
