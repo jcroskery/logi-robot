@@ -1,6 +1,7 @@
 use rscam::{Camera, Config};
 
 use std::sync::Arc;
+use std::sync::mpsc::Sender;
 
 pub fn start_camera(sender: Sender<serde_json::Value>, timer: Arc<howlong::HighResolutionTimer>) {
     std::thread::spawn(move || {
