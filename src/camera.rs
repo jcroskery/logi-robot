@@ -12,7 +12,7 @@ pub fn start_camera(sender: Sender<serde_json::Value>, timer: Arc<howlong::HighR
         camera
             .start(&Config {
                 interval: (1, 2),
-                resolution: (640, 426),
+                resolution: (640, 480),
                 format: b"MJPG",
                 ..Default::default()
             })
