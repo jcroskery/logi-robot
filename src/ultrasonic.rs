@@ -14,11 +14,13 @@ pub fn init_ultrasonic(gpio: Gpio, channel: Sender<serde_json::Value>,
             std::thread::sleep(Duration::from_millis(50));
             let trigger_pin = gpio.get(TRIGGERPIN).unwrap().into_output();
             let echo_pin =  gpio.get(ECHOPIN).unwrap().into_input();
-            channel.send(serde_json::json!({
+            if let Err(error) = channel.send(serde_json::json!({
                 "response": "ultrasonic",
                 "ultrasonic": ultrasonic(trigger_pin, echo_pin),
                 "time": timer.elapsed().as_nanos() as u64
-            }));
+            })) {
+                println!("Error sending ultrasonic data: {}", error);
+            };
         }
     });
 }
@@ -33,7 +35,9 @@ fn ultrasonic (mut trigger_pin: OutputPin, mut echo_pin: InputPin) -> f32 {
     let timeout_sender = sender.clone();
     std::thread::spawn(move || {
         std::thread::sleep(Duration::from_millis(60));
-        timeout_sender.send(300.0);
+        if let Err(error) = timeout_sender.send(300.0) {
+            println!("Error sending timeout value: {}", error);
+        };
     });
     echo_pin.set_async_interrupt(Trigger::Both, move |level| {
         if level == Level::High {

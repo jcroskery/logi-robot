@@ -18,7 +18,7 @@ pub fn start_camera(sender: Sender<serde_json::Value>, timer: Arc<howlong::HighR
             })
             .unwrap();
 
-        let frame = camera.capture().unwrap();
+        let _frame = camera.capture().unwrap();
 
         loop {
             sender

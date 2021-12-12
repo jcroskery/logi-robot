@@ -1,7 +1,7 @@
 use rppal::i2c::I2c;
 
 use std::time::Duration;
-use std::sync::mpsc::{Sender, channel};
+use std::sync::mpsc::Sender;
 use std::sync::Arc;
 
 const GYROADDRESS: u16 = 0x68;
@@ -40,9 +40,9 @@ impl Gyro {
         let mut gyro_readings = vec![];
         for i in 0..7 {
             if i == 3 {continue;}
-            let mut bits: u16 = ((buffer[i * 2] as u16) << 8) + (buffer[i * 2 + 1] as u16);
-            let mut combined_bits = 0.0;
-            if (bits.leading_ones() > 0) {
+            let bits: u16 = ((buffer[i * 2] as u16) << 8) + (buffer[i * 2 + 1] as u16);
+            let combined_bits;
+            if bits.leading_ones() > 0 {
                 combined_bits = -((!bits + 1) as f64);
             } else {
                 combined_bits = bits as f64;

@@ -1,0 +1,18 @@
+Motors
+
+GPIO 4 – Input 4
+GPIO 26 – Input 3
+GPIO 19 – Enable 2
+GPIO 13 – Input 2
+GPIO 6 – Input 1
+GPIO 5 – Enable 1
+
+Ultrasonic Sensor
+
+TDX0 – Trigger 
+RDX0 – Echo
+
+Gyroscope
+
+SCL1 – Gyroscope SCL
+SDA1 – Gyroscope SDA
