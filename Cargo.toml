@@ -12,5 +12,5 @@ rppal = "0.13.0"
 howlong = "0.1.7"
 ws = "0.9.1"
 serde_json = "1.0.68"
-rscam = "0.5.5"
 base64 = "0.13.0"
+opencv = {version = "0.61.2", features = ["clang-runtime"]}

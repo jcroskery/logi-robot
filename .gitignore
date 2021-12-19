@@ -1,19 +1,5 @@
-/target/*
-!/target/armv7-unknown-linux-gnueabihf
+/target/
 
-
-/target/armv7-unknown-linux-gnueabihf/*
-
-
-!/target/armv7-unknown-linux-gnueabihf/debug
-
-/target/armv7-unknown-linux-gnueabihf/debug/*
-!/target/armv7-unknown-linux-gnueabihf/debug/rpr
-
-
-!/target/armv7-unknown-linux-gnueabihf/release
-
-/target/armv7-unknown-linux-gnueabihf/release/*
 !/target/armv7-unknown-linux-gnueabihf/release/rpr
 
 Cargo.lock
@@ -21,3 +7,4 @@ Cargo.lock
 /.vscode/
 
 .rustc_info.json
+/build/
