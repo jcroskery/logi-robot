@@ -75,7 +75,7 @@ impl ws::Handler for Server {
 
 fn main() {
     let timer = Arc::new(howlong::HighResolutionTimer::new());
-    let gpio = Gpio::new().unwrap();
+    //let gpio = Gpio::new().unwrap();
 
     let (to_client_message_sender, to_client_message_receiver) = channel();
     
@@ -84,11 +84,11 @@ fn main() {
     let to_client_senders: Arc<Mutex<Vec<Sender<ws::Message>>>> = Arc::new(Mutex::new(vec![]));
 
     
-    ultrasonic::init_ultrasonic(gpio.clone(), to_client_message_sender.clone(), timer.clone());
+    //ultrasonic::init_ultrasonic(gpio.clone(), to_client_message_sender.clone(), timer.clone());
 
-    gyro::init_gyro(to_client_message_sender.clone(), timer.clone());
+    //gyro::init_gyro(to_client_message_sender.clone(), timer.clone());
 
-    motor::init_motor(gpio.clone(), to_client_message_sender.clone(), to_motor_receiver, timer.clone());
+    //motor::init_motor(gpio.clone(), to_client_message_sender.clone(), to_motor_receiver, timer.clone());
 
     camera::start_camera(to_client_message_sender.clone(), timer.clone());
     
