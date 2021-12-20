@@ -8,4 +8,4 @@ Cargo.lock
 
 .rustc_info.json
 /build/
-/docker/opencv/
+/opencv/
