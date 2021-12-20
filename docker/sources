@@ -1,7 +1,0 @@
-Package: clang:armhf
-Pin: release n=bionic
-Pin-Priority: 500
-
-Package: libclang-dev:armhf
-Pin: release n=bionic
-Pin-Priority: 500
