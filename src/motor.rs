@@ -16,6 +16,7 @@ pub fn init_motor(gpio: Gpio, sender: Sender<serde_json::Value>, receiver: Recei
             Polarity::Normal, true).unwrap()];
         loop {
             if let Ok(speeds) = receiver.recv() {
+                println!("Changed speed");
                 sender.send(serde_json::json!({
                     "response": "motor",
                     "time": timer.elapsed().as_nanos() as u64
