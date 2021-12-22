@@ -4,12 +4,12 @@ use rppal::pwm::{Pwm, Channel, Polarity};
 use std::sync::Arc;
 use std::sync::mpsc::{Sender, Receiver};
 
-const DIRECTIONPINS: &[u8] = &[20, 21, 13, 26];
+const DIRECTIONPINS: &[u8] = &[6, 21, 26, 4];
 
 pub fn init_motor(gpio: Gpio, sender: Sender<serde_json::Value>, receiver: Receiver<Vec<i32>>, 
     timer: Arc<howlong::HighResolutionTimer>) {
     std::thread::spawn(move || {
-        let mut direction_pins: Vec<_> = DIRECTIONPINS.iter().map(|pin_number: &u8| { gpio.get(*pin_number).unwrap().into_output()}).collect();
+        let mut direction_pins = DIRECTIONPINS.iter().map(|pin_number: &u8| { gpio.get(*pin_number).unwrap().into_output()}).collect();
         let mut pwm = vec![Pwm::with_frequency(Channel::Pwm0,100.0, 0.0,
             Polarity::Normal, true).unwrap(), 
             Pwm::with_frequency(Channel::Pwm1,100.0, 0.0,

@@ -119,7 +119,7 @@ fn main() {
     to_motor_sender.send(vec![100, -100]).expect("Failed to start motors.");
     spin_sleep::sleep(Duration::from_millis(5000));
     println!("Finished sleep. Exiting.");
-    to_motor_sender.send(vec![100, -100]).expect("Failed to stop motors.");
+    to_motor_sender.send(vec![0, 0]).expect("Failed to stop motors.");
 
     if let Err(error) = ws::listen("0.0.0.0:6455", |ws_sender| {
         let (individual_client_sender, individual_client_receiver) = channel();
