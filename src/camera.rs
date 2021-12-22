@@ -18,9 +18,9 @@ pub fn start_camera(sender: Sender<serde_json::Value>, timer: Arc<howlong::HighR
                         std::thread::sleep(Duration::from_millis(10));
                         let mut frame = Mat::default();
 		                cam.read(&mut frame).expect("Failed to read frame");
-                        let mut png = VectorOfu8::new();
-                        imgcodecs::imencode(".png", &frame, &mut png, &VectorOfi32::new()).expect("Failed to save image");
-                        let encoded_data = base64::encode(png);
+                        let mut jpg = VectorOfu8::new();
+                        imgcodecs::imencode(".jpg", &frame, &mut jpg, &VectorOfi32::new()).expect("Failed to save image");
+                        let encoded_data = base64::encode(jpg);
                         sender.send(serde_json::json!({
                             "response": "camera",
                             "time": timer.elapsed().as_nanos() as u64,
