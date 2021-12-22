@@ -6,7 +6,7 @@ use opencv::{
 	prelude::*,
 	videoio,
     imgcodecs,
-    types::VectorOfi32
+    types::{VectorOfi32, VectorOfu8}
 };
 
 pub fn start_camera(sender: Sender<serde_json::Value>, timer: Arc<howlong::HighResolutionTimer>) {
@@ -14,25 +14,21 @@ pub fn start_camera(sender: Sender<serde_json::Value>, timer: Arc<howlong::HighR
         if let Ok(mut cam) = videoio::VideoCapture::new(0, videoio::CAP_ANY) {
             if let Ok(opened) = videoio::VideoCapture::is_opened(&cam) {
                 if opened {
-                    std::thread::sleep(Duration::from_secs(5));
-                    let mut frame = Mat::default();
-		            cam.read(&mut frame).expect("Failed to read frame");
-                    imgcodecs::imwrite("test.jpg", &frame, &VectorOfi32::new()).expect("Failed to save image");// /home/pi/logi/test.jpg
-                    println!("Saved image from camera");
+                    loop {
+                        std::thread::sleep(Duration::from_millis(10));
+                        let mut frame = Mat::default();
+		                cam.read(&mut frame).expect("Failed to read frame");
+                        let mut jpg = VectorOfu8::new();
+                        imgcodecs::imencode(".jpg", &frame, &mut jpg, &VectorOfi32::new()).expect("Failed to save image");
+                        let encoded_data = base64::encode(jpg);
+                        sender.send(serde_json::json!({
+                            "response": "camera",
+                            "time": timer.elapsed().as_nanos() as u64,
+                            "image": encoded_data
+                        })).unwrap();
+                    }
                 }
             }
         }
-        
-        /* 
-        loop {
-            sender
-                .send(serde_json::json!({
-                    "response": "camera",
-                    "time": timer.elapsed().as_nanos() as u64,
-                    "frame": base64::encode(&*camera.capture().unwrap())
-                }))
-                .unwrap();
-        }
-        */
     });
 }

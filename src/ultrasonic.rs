@@ -36,7 +36,7 @@ fn ultrasonic (mut trigger_pin: OutputPin, mut echo_pin: InputPin) -> f32 {
     std::thread::spawn(move || {
         std::thread::sleep(Duration::from_millis(60));
         if let Ok(()) = timeout_sender.send(300.0) {
-            println!("Error reading ultrasonic value");
+            println!("Ultrasonic timeout");
         };
     });
     echo_pin.set_async_interrupt(Trigger::Both, move |level| {
