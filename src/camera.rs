@@ -15,7 +15,7 @@ pub fn start_camera(sender: Sender<serde_json::Value>, timer: Arc<howlong::HighR
             if let Ok(opened) = videoio::VideoCapture::is_opened(&cam) {
                 if opened {
                     loop {
-                        std::thread::sleep(Duration::from_millis(1000));
+                        std::thread::sleep(Duration::from_millis(10));
                         let mut frame = Mat::default();
 		                cam.read(&mut frame).expect("Failed to read frame");
                         let mut png = VectorOfu8::new();
