@@ -115,13 +115,6 @@ fn main() {
         }
     });
 
-    
-    to_motor_sender.send(vec![100, 100]).expect("Failed to start motors.");
-    spin_sleep::sleep(Duration::from_millis(5000));
-    to_motor_sender.send(vec![50, 0]).expect("Failed to change motor direction.");
-    spin_sleep::sleep(Duration::from_millis(5000));
-    to_motor_sender.send(vec![0, 0]).expect("Failed to stop motors.");
-
     if let Err(error) = ws::listen("0.0.0.0:6455", |ws_sender| {
         let (individual_client_sender, individual_client_receiver) = channel();
         to_client_senders.lock().unwrap().push(individual_client_sender);
@@ -133,4 +126,12 @@ fn main() {
     }) {
         println!("WebSocket error: {:?}", error);
     }
+}
+
+fn _test_motor(to_motor_sender: Sender<Vec<i32>>) {
+    to_motor_sender.send(vec![100, 100]).expect("Failed to start motors.");
+    spin_sleep::sleep(Duration::from_millis(5000));
+    to_motor_sender.send(vec![50, 0]).expect("Failed to change motor direction.");
+    spin_sleep::sleep(Duration::from_millis(5000));
+    to_motor_sender.send(vec![0, 0]).expect("Failed to stop motors.");
 }
