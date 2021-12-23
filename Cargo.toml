@@ -1,6 +1,6 @@
 [package]
-name = "rpr"
-version = "0.1.0"
+name = "logi-robot"
+version = "1.0.0"
 authors = ["Justus Croskery <justus@olmmcc.tk>"]
 edition = "2018"
 

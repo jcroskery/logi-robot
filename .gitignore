@@ -9,3 +9,4 @@ Cargo.lock
 .rustc_info.json
 /build/
 /opencv/
+logi.code-workspace
