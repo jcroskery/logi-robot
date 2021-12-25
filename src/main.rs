@@ -106,7 +106,7 @@ fn main() {
             if let Ok(received_message) = to_client_message_receiver.recv() {
                 // Discard old messages by ignoring them
                 if received_message.get("time").unwrap().as_u64().unwrap() + 1000000
-                    < timer.elapsed().as_nanos() as u64
+                    > timer.elapsed().as_nanos() as u64
                 {
                     let mut unlocked_client_senders = to_client_senders_clone.lock().unwrap();
                     let mut senders_to_remove = vec![];
