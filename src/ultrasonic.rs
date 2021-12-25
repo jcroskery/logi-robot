@@ -36,6 +36,10 @@ pub fn init_ultrasonic(
                 })) {
                     println!("Error sending ultrasonic data: {}", error);
                 };
+
+                if i == 0 {
+                    println!("{}", median_ultrasonic_response);
+                }
             }
             i += 1;
             if i == 20 {
