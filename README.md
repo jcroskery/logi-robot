@@ -10,3 +10,5 @@ This robot is controlled by a website. Any device with local internet access can
 ## Performance
 - The robot can successfully navigate a flat obstacle course thanks to its ability to move both forward and backward. 
 - The gyroscope/accelerometer only displays its raw readings in a table --- I found that attempting to calculate the velocity of the robot with the accelerometer yielded imprecise results.
+## Picture
+![logi.jpg](https://github.com/jcroskery/logi-robot/blob/logi/logi.JPG?raw=true)
